@@ -1,0 +1,88 @@
+/* Global styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #111;
+  color: #eee;
+  line-height: 1.6;
+  padding: 2rem;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+header p {
+  font-size: 1rem;
+  color: #aaa;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background-color: #1c1c1c;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.card h2 {
+  padding: 1rem;
+  font-size: 1.2rem;
+}
+
+.card .status {
+  display: inline-block;
+  padding: 0.3rem 0.7rem;
+  margin: 0 1rem 0.5rem;
+  border-radius: 5px;
+  font-size: 0.9rem;
+}
+
+.status.done {
+  background-color: #2e8b57;
+  color: white;
+}
+
+.status.want {
+  background-color: #4a90e2;
+  color: white;
+}
+
+.card p {
+  padding: 0 1rem 1rem;
+  color: #bbb;
+}
+
+footer {
+  text-align: center;
+  margin-top: 3rem;
+  font-size: 0.9rem;
+  color: #666;
+}
