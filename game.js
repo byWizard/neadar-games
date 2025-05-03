@@ -1,21 +1,7 @@
 function getGameById(id) {
-  return {
-    witcher: {
-      title: "The Witcher 3: Wild Hunt",
-      image: "https://cdn.akamai.steamstatic.com/steam/apps/499450/header.jpg",
-      descriptionKey: "description_witcher"
-    },
-    elden: {
-      title: "Elden Ring",
-      image: "https://cdn.akamai.steamstatic.com/steam/apps/1245620/header.jpg",
-      descriptionKey: "description_elden"
-    },
-    acorigins: {
-      title: "Assassin's Creed Origins",
-      image: "https://cdn.akamai.steamstatic.com/steam/apps/537400/header.jpg",
-      descriptionKey: "description_acorigins"
-    }
-  }[id];
+  const custom = JSON.parse(localStorage.getItem(`game_${id}`));
+  const def = DEFAULT_GAMES[id] || {};
+  return { ...def, ...custom, id };
 }
 
 function loadGamePage() {
@@ -26,21 +12,20 @@ function loadGamePage() {
   if (!game) return;
 
   document.getElementById("game-title").textContent = game.title;
-  document.getElementById("game-img").src = game.image;
+  document.getElementById("game-img").src = game.img;
 
-  const savedDesc = localStorage.getItem(game.descriptionKey) || game.defaultDesc;
-  document.getElementById("game-description").value = savedDesc;
-}
+  const textarea = document.getElementById("game-description");
+  textarea.value = game.desc || "";
 
-function saveDescription() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const gameId = urlParams.get("id");
-
-  const game = getGameById(gameId);
-  if (!game) return;
-
-  const desc = document.getElementById("game-description").value;
-  localStorage.setItem(game.descriptionKey, desc);
+  if (localStorage.getItem('isAdmin') === 'true') {
+    textarea.disabled = false;
+    textarea.oninput = () => {
+      const updated = { ...game, desc: textarea.value };
+      localStorage.setItem(`game_${game.id}`, JSON.stringify(updated));
+    };
+  } else {
+    textarea.disabled = true;
+  }
 }
 
 loadGamePage();
