@@ -7,50 +7,26 @@
   <link rel="stylesheet" href="styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
-<body>
-
+<body class="dark-theme">
   <header>
     <h1>🎮 Neadar's Game List</h1>
     <p>Список пройденных, желаемых и любимых игр</p>
+    <div class="filters">
+      <button onclick="filter('all')">Показать все</button>
+      <button onclick="filter('done')">Пройдено</button>
+      <button onclick="filter('want')">Хочу пройти</button>
+      <button id="theme-toggle">🌞 Светлая</button>
+    </div>
   </header>
 
-  <main class="cards">
-
-    <!-- The Witcher 3 -->
-    <div class="card">
-      <img src="https://cdn.akamai.steamstatic.com/steam/apps/499450/header.jpg" alt="The Witcher 3: Wild Hunt">
-      <div class="card-content">
-        <h2>The Witcher 3: Wild Hunt</h2>
-        <span class="status done">✅ Пройдено</span>
-        <p>Мир, в котором хочется потеряться. Каждый персонаж — история сам по себе.</p>
-      </div>
-    </div>
-
-    <!-- Elden Ring -->
-    <div class="card">
-      <img src="https://cdn.akamai.steamstatic.com/steam/apps/1245620/header.jpg" alt="Elden Ring">
-      <div class="card-content">
-        <h2>Elden Ring</h2>
-        <span class="status want">🧭 Хочу пройти</span>
-        <p>Открытый мир, где каждый шаг — битва за выживание.</p>
-      </div>
-    </div>
-
-    <!-- Assassin's Creed Origins -->
-    <div class="card">
-      <img src="https://cdn.akamai.steamstatic.com/steam/apps/537400/header.jpg" alt="Assassin's Creed Origins">
-      <div class="card-content">
-        <h2>Assassin's Creed Origins</h2>
-        <span class="status want">🎯 Хочу пройти</span>
-        <p>Жду не дождусь, чтобы окунуться в новую историю.</p>
-      </div>
-    </div>
-
+  <main class="cards" id="game-cards">
+    <!-- Игры будут загружены здесь -->
   </main>
 
   <footer>
     <p>Made with ❤️ by Neadar • Powered by GitHub Pages</p>
   </footer>
 
+  <script src="script.js"></script>
 </body>
 </html>
