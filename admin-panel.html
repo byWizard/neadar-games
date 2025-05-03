@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>🛠️ Панель управления</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="dark-theme">
+  <header>
+    <h1>🛠️ Админ-панель</h1>
+    <a href="index.html">← На главную</a>
+  </header>
+
+  <main>
+    <form id="game-form">
+      <input type="text" id="game-id" placeholder="ID игры (например: cyberpunk)" required>
+      <input type="text" id="game-title" placeholder="Название игры" required>
+      <input type="url" id="game-img" placeholder="Ссылка на обложку">
+      <select id="game-status">
+        <option value="done">✅ Пройдено</option>
+        <option value="want">🧭 Хочу пройти</option>
+      </select>
+      <textarea id="game-desc" placeholder="Описание игры..."></textarea>
+      <button type="submit">Добавить / Обновить</button>
+    </form>
+  </main>
+
+  <script src="admin.js"></script>
+</body>
+</html>
