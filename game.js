@@ -1,31 +1,30 @@
-function getGameById(id) {
-  const custom = JSON.parse(localStorage.getItem(`game_${id}`));
-  const def = DEFAULT_GAMES[id] || {};
-  return { ...def, ...custom, id };
-}
+const urlParams = new URLSearchParams(window.location.search);
+const gameId = urlParams.get("id");
 
-function loadGamePage() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const gameId = urlParams.get("id");
+async function loadGame() {
+  const res = await fetch('games.json');
+  const allGames = await res.json();
+  const game = allGames.find(g => g.id === gameId);
 
-  const game = getGameById(gameId);
   if (!game) return;
 
   document.getElementById("game-title").textContent = game.title;
   document.getElementById("game-img").src = game.img;
 
   const textarea = document.getElementById("game-description");
-  textarea.value = game.desc || "";
+  const savedDesc = localStorage.getItem(`desc_${gameId}`) || game.desc;
+  textarea.value = savedDesc;
 
   if (localStorage.getItem('isAdmin') === 'true') {
     textarea.disabled = false;
-    textarea.oninput = () => {
-      const updated = { ...game, desc: textarea.value };
-      localStorage.setItem(`game_${game.id}`, JSON.stringify(updated));
-    };
   } else {
     textarea.disabled = true;
   }
 }
 
-loadGamePage();
+function saveDescription() {
+  const desc = document.getElementById("game-description").value;
+  localStorage.setItem(`desc_${gameId}`, desc);
+}
+
+loadGame();
