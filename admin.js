@@ -1,4 +1,4 @@
-document.getElementById("game-form").addEventListener("submit", function(e) {
+document.getElementById("add-game-form").addEventListener("submit", function(e) {
   e.preventDefault();
 
   const id = document.getElementById("game-id").value.trim();
@@ -7,8 +7,8 @@ document.getElementById("game-form").addEventListener("submit", function(e) {
   const status = document.getElementById("game-status").value;
   const desc = document.getElementById("game-desc").value;
 
-  const gameData = { title, img, status, desc };
+  const game = { id, title, img, status, desc };
 
-  localStorage.setItem(`game_${id}`, JSON.stringify(gameData));
-  alert("Игра сохранена!");
+  localStorage.setItem(`custom_game_${id}`, JSON.stringify(game));
+  alert("Игра добавлена/обновлена!");
 });
