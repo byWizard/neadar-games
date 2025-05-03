@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>🔐 Админка</title>
+  <title>🔐 Вход в админку</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="dark-theme">
@@ -10,15 +10,15 @@
     <h2>🔐 Вход в админку</h2>
     <input type="password" id="admin-pass" placeholder="Введите пароль">
     <button onclick="login()">Войти</button>
-    <p id="error"></p>
+    <p id="error" style="color: red;"></p>
   </div>
 
   <script>
-    const ADMIN_PASSWORD = '123'; // Твой пароль
+    const ADMIN_PASS = '123'; // Твой пароль
 
     function login() {
       const pass = document.getElementById('admin-pass').value;
-      if (pass === ADMIN_PASSWORD) {
+      if (pass === ADMIN_PASS) {
         localStorage.setItem('isAdmin', 'true');
         window.location.href = 'admin-panel.html';
       } else {
