@@ -1,0 +1,16 @@
+[
+  {
+    "id": "witcher",
+    "title": "The Witcher 3: Wild Hunt",
+    "img": "https://cdn.akamai.steamstatic.com/steam/apps/499450/header.jpg",
+    "status": "done",
+    "desc": "Мир, в котором хочется потеряться. Каждый персонаж — история сам по себе."
+  },
+  {
+    "id": "elden",
+    "title": "Elden Ring",
+    "img": "https://cdn.akamai.steamstatic.com/steam/apps/1245620/header.jpg",
+    "status": "want",
+    "desc": "Открытый мир, где каждый шаг — битва за выживание."
+  }
+]
