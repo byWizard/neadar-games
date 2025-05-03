@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>🔐 Админка</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="dark-theme">
+  <div class="login-box">
+    <h2>🔐 Вход в админку</h2>
+    <input type="password" id="admin-pass" placeholder="Введите пароль">
+    <button onclick="login()">Войти</button>
+    <p id="error"></p>
+  </div>
+
+  <script>
+    const ADMIN_PASSWORD = '123'; // Твой пароль
+
+    function login() {
+      const pass = document.getElementById('admin-pass').value;
+      if (pass === ADMIN_PASSWORD) {
+        localStorage.setItem('isAdmin', 'true');
+        window.location.href = 'admin-panel.html';
+      } else {
+        document.getElementById('error').textContent = 'Неверный пароль!';
+      }
+    }
+  </script>
+</body>
+</html>
