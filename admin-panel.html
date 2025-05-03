@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>🛠️ Панель управления</title>
+  <title>🛠️ Админ-панель</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="dark-theme">
@@ -12,16 +12,16 @@
   </header>
 
   <main>
-    <form id="game-form">
-      <input type="text" id="game-id" placeholder="ID игры (например: cyberpunk)" required>
+    <form id="add-game-form">
+      <input type="text" id="game-id" placeholder="ID (например: cyberpunk)" required>
       <input type="text" id="game-title" placeholder="Название игры" required>
-      <input type="url" id="game-img" placeholder="Ссылка на обложку">
+      <input type="url" id="game-img" placeholder="Ссылка на обложку" required>
       <select id="game-status">
         <option value="done">✅ Пройдено</option>
         <option value="want">🧭 Хочу пройти</option>
       </select>
       <textarea id="game-desc" placeholder="Описание игры..."></textarea>
-      <button type="submit">Добавить / Обновить</button>
+      <button type="submit">Добавить игру</button>
     </form>
   </main>
 
