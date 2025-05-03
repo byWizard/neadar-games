@@ -4,22 +4,23 @@
   <meta charset="UTF-8" />
   <title>🎮 Neadar's Game List</title>
   <link rel="stylesheet" href="styles.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
-<body class="dark-theme">
+<body class="dark-theme" id="page-body">
   <header>
     <h1>🎮 Neadar's Game List</h1>
-    <p>Список пройденных, желаемых и любимых игр</p>
+    <p>Мои любимые, пройденные и желаемые игры</p>
+
     <div class="filters">
       <button onclick="filter('all')">Показать все</button>
       <button onclick="filter('done')">Пройдено</button>
       <button onclick="filter('want')">Хочу пройти</button>
-      <button id="theme-toggle">🌞 Светлая</button>
-      <button onclick="openAdmin()">⚙️ Админка</button>
+      <button onclick="toggleTheme()" id="theme-btn">🌞 Светлая</button>
+      <button onclick="goToAdmin()">⚙️ Админка</button>
     </div>
   </header>
 
-  <main class="cards" id="game-cards"></main>
+  <main class="cards" id="game-list"></main>
 
   <footer>
     <p>Made with ❤️ by Neadar • Powered by GitHub Pages</p>
