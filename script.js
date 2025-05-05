@@ -6,8 +6,8 @@ const gameImage = document.getElementById("gameImage");
 const gameDescription = document.getElementById("gameDescription");
 const gameSearchInput = document.getElementById("gameSearch");
 const searchResults = document.getElementById("searchResults");
-const searchInput = document.getElementById("searchInput"); // Поиск по списку
-const filterSelect = document.getElementById("filterSelect"); // Фильтр по статусу
+const searchInput = document.getElementById("searchInput");
+const filterSelect = document.getElementById("filterSelect");
 const doneCountEl = document.getElementById("doneCount");
 const authBtn = document.getElementById("authBtn");
 const userStatus = document.getElementById("userStatus");
@@ -196,7 +196,11 @@ auth.onAuthStateChanged((user) => {
 });
 
 function toggleAuthUI(isVisible) {
-  authOnlyOverlay.style.display = isVisible ? "flex" : "none";
+  if (isVisible) {
+    authOnlyOverlay.style.display = "flex";
+  } else {
+    authOnlyOverlay.style.display = "none";
+  }
 }
 
 // === Сохранение данных ===
@@ -230,7 +234,8 @@ function applyFilters() {
 
   const filteredGames = games.filter(game => {
     const matchesSearch = game.title.toLowerCase().includes(searchTerm);
-    const matchesFilter = filterValue === "all" || game.status === filterValue;
+    const matchesFilter =
+      filterValue === "all" || game.status === filterValue;
     return matchesSearch && matchesFilter;
   });
 
@@ -293,7 +298,7 @@ function renderFilteredGames(filteredGames) {
     deleteBtn.addEventListener("click", () => {
       games.splice(index, 1);
       saveData();
-      applyFilters();
+      applyFilters(); // перерисовываем с учётом фильтров
     });
 
     cardsContainer.appendChild(card);
@@ -334,7 +339,7 @@ document.getElementById("importInput").addEventListener("change", e => {
       if (Array.isArray(importedGames)) {
         games = importedGames;
         saveData();
-        applyFilters();
+        applyFilters(); // ←
         alert("✅ Игры успешно импортированы!");
       } else {
         throw new Error("Формат данных неверен");
@@ -405,7 +410,7 @@ class Particle {
     }
     this.x += this.vx;
     this.y += this.vy;
-    if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) {
+    if (this.x < 0 || this.y < 0 || this.x > width || this.y > height) {
       this.reset();
     }
   }
@@ -447,10 +452,3 @@ window.addEventListener("resize", () => {
   resizeCanvas();
   initParticles(150);
 });
-
-function testFilter() {
-  console.log("Количество игр до фильтра:", games.length);
-  const filtered = games.filter(g => g.title.toLowerCase().includes("the"));
-  console.log("Отфильтрованные игры:", filtered);
-}
-setTimeout(testFilter, 2000);
