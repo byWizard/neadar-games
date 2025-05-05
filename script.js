@@ -257,12 +257,13 @@ function renderFilteredGames(filteredGames) {
       });
 
       // Статус
-      const statusEl = card.querySelector(".status");
-      statusEl.addEventListener("click", () => {
-        game.status = game.status === "done" ? "want" : "done";
-        saveData();
-        updateCard(card, game);
-      });
+const statusEl = card.querySelector(".status");
+statusEl.addEventListener("click", () => {
+  game.status = game.status === "done" ? "want" : "done";
+  saveData();
+  updateCard(card, game);
+  updateStats(); // ✅ Добавили обновление счётчика
+});
 
       // Описание
       const descEl = card.querySelector(".description");
@@ -272,12 +273,13 @@ function renderFilteredGames(filteredGames) {
       });
 
       // Удаление
-      const deleteBtn = card.querySelector(".delete-btn");
-      deleteBtn.addEventListener("click", () => {
-        games.splice(index, 1);
-        saveData();
-        applyFilters();
-      });
+const deleteBtn = card.querySelector(".delete-btn");
+deleteBtn.addEventListener("click", () => {
+  games.splice(index, 1);
+  saveData();
+  applyFilters();
+  updateStats(); // ✅ Добавили обновление счётчика
+});
 
       cardsContainer.appendChild(card);
     } else {
