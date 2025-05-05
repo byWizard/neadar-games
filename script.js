@@ -178,6 +178,7 @@ auth.onAuthStateChanged((user) => {
 });
 
 function toggleAuthUI(isVisible) {
+  if (isLoadingAuth) return; // Пока проверяем — не показываем оверлей
   authOnlyOverlay.style.display = isVisible ? "flex" : "none";
 }
 
