@@ -183,9 +183,10 @@ function toggleAuthUI(isVisible) {
 
 // === Сохранение данных ===
 function saveData() {
-  localStorage.setItem("games", JSON.stringify(games));
   if (currentUser) {
     database.ref(`users/${currentUser.uid}`).set({ games });
+  } else {
+    localStorage.setItem("games", JSON.stringify(games));
   }
 }
 
