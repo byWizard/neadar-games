@@ -118,11 +118,18 @@ function renderSearchResults(results) {
   });
 }
 
+// === Тема ===
+function setTheme(theme) {
+  document.body.classList.remove("dark-theme", "light-theme");
+  document.body.classList.add(`${theme}-theme`);
+  themeToggle.textContent = theme === "dark" ? "🌙 Переключить тему" : "☀️ Переключить тему";
+  localStorage.setItem("theme", theme);
+  updateParticleColor(theme);
+}
 themeToggle.addEventListener("click", () => {
   const currentTheme = localStorage.getItem("theme") || "dark";
   setTheme(currentTheme === "dark" ? "light" : "dark");
 });
-
 window.addEventListener("DOMContentLoaded", () => {
   const savedTheme = localStorage.getItem("theme") || "dark";
   setTheme(savedTheme);
@@ -131,13 +138,14 @@ window.addEventListener("DOMContentLoaded", () => {
 // === Авторизация ===
 authBtn.addEventListener("click", () => {
   if (currentUser) {
-    auth.signOut();
+    auth.signOut().then(() => {
+      localStorage.removeItem("games");
+    });
   } else {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider).catch(err => alert("Ошибка входа: " + err.message));
   }
 });
-
 authRequiredLoginBtn.addEventListener("click", () => {
   const provider = new firebase.auth.GoogleAuthProvider();
   auth.signInWithPopup(provider).catch(err => alert("Ошибка входа: " + err.message));
@@ -151,8 +159,7 @@ auth.onAuthStateChanged((user) => {
     userStatus.textContent = `Вы вошли как ${user.displayName}`;
     database.ref(`users/${currentUser.uid}`).once("value").then(snapshot => {
       const data = snapshot.val();
-      games = data?.games || JSON.parse(localStorage.getItem("games")) || [];
-      localStorage.setItem("games", JSON.stringify(games));
+      games = data?.games || [];
       applyFilters();
       toggleAuthUI(false);
     }).catch(console.error);
@@ -160,7 +167,7 @@ auth.onAuthStateChanged((user) => {
     currentUser = null;
     authBtn.textContent = "Войти через Google";
     userStatus.textContent = "Вы не вошли";
-    games = JSON.parse(localStorage.getItem("games")) || [];
+    games = [];
     applyFilters();
     toggleAuthUI(true);
   }
@@ -354,7 +361,6 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
-// Отслеживаем позицию мыши
 window.addEventListener("mousemove", e => {
   mouseX = e.clientX;
   mouseY = e.clientY;
@@ -372,7 +378,7 @@ class Particle {
     this.vy = (Math.random() - 0.5) * 0.5;
     this.radius = Math.random() * 2 + 1;
     this.alpha = Math.random() * 0.5 + 0.3;
-    this.baseColor = "#ffffff"; // Базовый цвет — будет меняться в зависимости от темы
+    this.color = currentParticleColor;
   }
 
   draw() {
@@ -383,7 +389,6 @@ class Particle {
   }
 
   update() {
-    // Притяжение к курсору
     const dx = this.x - mouseX;
     const dy = this.y - mouseY;
     const dist = Math.sqrt(dx * dx + dy * dy);
@@ -391,10 +396,8 @@ class Particle {
       this.vx -= dx / 2000;
       this.vy -= dy / 2000;
     }
-
     this.x += this.vx;
     this.y += this.vy;
-
     if (this.x < 0 || this.x > width) this.reset();
     if (this.y < 0 || this.y > height) this.reset();
   }
@@ -403,9 +406,7 @@ class Particle {
 function createParticles(num = 190) {
   particles = [];
   for (let i = 0; i < num; i++) {
-    const p = new Particle();
-    p.color = currentParticleColor; // Устанавливаем цвет при создании
-    particles.push(p);
+    particles.push(new Particle());
   }
 }
 
@@ -420,13 +421,12 @@ function setParticleColor(color) {
 
 function animateParticles() {
   ctx.clearRect(0, 0, width, height);
-
   particles.forEach(p => {
     p.update();
     p.draw();
   });
 
-  // Рисуем линии между близкими частицами
+  // Линии между частицами
   for (let i = 0; i < particles.length; i++) {
     for (let j = i + 1; j < particles.length; j++) {
       const p1 = particles[i];
@@ -434,7 +434,6 @@ function animateParticles() {
       const dx = p1.x - p2.x;
       const dy = p1.y - p2.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
-
       if (dist < 100) {
         ctx.strokeStyle = `rgba(${currentParticleColor}, ${0.7 * (1 - dist / 100)})`;
         ctx.lineWidth = 0.5;
@@ -446,13 +445,12 @@ function animateParticles() {
     }
   }
 
-  // Линии от частиц к курсору
+  // Линии к курсору
   ctx.strokeStyle = `rgba(${currentParticleColor}, 0.2)`;
   for (let p of particles) {
     const dx = p.x - mouseX;
     const dy = p.y - mouseY;
     const dist = Math.sqrt(dx * dx + dy * dy);
-
     if (dist < 150) {
       ctx.beginPath();
       ctx.moveTo(p.x, p.y);
@@ -464,7 +462,7 @@ function animateParticles() {
   requestAnimationFrame(animateParticles);
 }
 
-// === Обновление цвета частиц под тему ===
+// === Цвет частиц под тему ===
 function updateParticleColor(theme) {
   if (theme === "dark") {
     setParticleColor("255, 255, 255");
@@ -476,12 +474,3 @@ function updateParticleColor(theme) {
 // === Инициализация ===
 createParticles();
 animateParticles();
-
-// Добавляем вызов updateParticleColor в setTheme
-function setTheme(theme) {
-  document.body.classList.remove("dark-theme", "light-theme");
-  document.body.classList.add(`${theme}-theme`);
-  themeToggle.textContent = theme === "dark" ? "🌙 Переключить тему" : "☀️ Переключить тему";
-  localStorage.setItem("theme", theme);
-  updateParticleColor(theme); // ← Обновляем цвет частиц
-}
