@@ -446,3 +446,7 @@ footer strong.version-tag {
   border-radius: 4px;
   border: 1px solid var(--border-color);
 }
+
+#authOnlyOverlay {
+  display: none; /* По умолчанию скрыт */
+}
