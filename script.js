@@ -347,12 +347,14 @@ document.getElementById("importInput").addEventListener("change", e => {
   reader.readAsText(file);
 });
 
-// === Частицы через Canvas (без библиотек) ===
+// === Частицы через Canvas с реакцией на мышь и цветом под тему ===
 const canvas = document.getElementById("particles");
 const ctx = canvas.getContext("2d");
 
 let particles = [];
 let width, height;
+let mouseX = window.innerWidth / 2;
+let mouseY = window.innerHeight / 2;
 
 function resizeCanvas() {
   width = (canvas.width = window.innerWidth);
@@ -360,6 +362,12 @@ function resizeCanvas() {
 }
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
+
+// Отслеживаем позицию мыши
+window.addEventListener("mousemove", e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+});
 
 class Particle {
   constructor() {
@@ -369,20 +377,30 @@ class Particle {
   reset() {
     this.x = Math.random() * width;
     this.y = Math.random() * height;
-    this.vx = (Math.random() - 0.5) * 1.3;
-    this.vy = (Math.random() - 0.5) * 1.3;
+    this.vx = (Math.random() - 0.5) * 0.5;
+    this.vy = (Math.random() - 0.5) * 0.5;
     this.radius = Math.random() * 2 + 1;
     this.alpha = Math.random() * 0.5 + 0.3;
+    this.baseColor = "#ffffff"; // Базовый цвет — будет меняться в зависимости от темы
   }
 
   draw() {
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
+    ctx.fillStyle = `rgba(${this.color}, ${this.alpha})`;
     ctx.fill();
   }
 
   update() {
+    // Притяжение к курсору
+    const dx = this.x - mouseX;
+    const dy = this.y - mouseY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 200) {
+      this.vx -= dx / 2000;
+      this.vy -= dy / 2000;
+    }
+
     this.x += this.vx;
     this.y += this.vy;
 
@@ -391,18 +409,27 @@ class Particle {
   }
 }
 
-function createParticles(num = 220) {
+function createParticles(num = 100) {
   particles = [];
   for (let i = 0; i < num; i++) {
-    particles.push(new Particle());
+    const p = new Particle();
+    p.color = currentParticleColor; // Устанавливаем цвет при создании
+    particles.push(p);
   }
 }
-createParticles();
+
+let currentParticleColor = "255, 255, 255";
+
+function setParticleColor(color) {
+  currentParticleColor = color;
+  particles.forEach(p => {
+    p.color = color;
+  });
+}
 
 function animateParticles() {
   ctx.clearRect(0, 0, width, height);
 
-  // Рисуем точки
   particles.forEach(p => {
     p.update();
     p.draw();
@@ -418,7 +445,7 @@ function animateParticles() {
       const dist = Math.sqrt(dx * dx + dy * dy);
 
       if (dist < 100) {
-        ctx.strokeStyle = `rgba(255, 255, 255, ${0.7 * (1 - dist / 100)})`;
+        ctx.strokeStyle = `rgba(${currentParticleColor}, ${0.7 * (1 - dist / 100)})`;
         ctx.lineWidth = 0.5;
         ctx.beginPath();
         ctx.moveTo(p1.x, p1.y);
@@ -428,6 +455,42 @@ function animateParticles() {
     }
   }
 
+  // Линии от частиц к курсору
+  ctx.strokeStyle = `rgba(${currentParticleColor}, 0.2)`;
+  for (let p of particles) {
+    const dx = p.x - mouseX;
+    const dy = p.y - mouseY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist < 150) {
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(mouseX, mouseY);
+      ctx.stroke();
+    }
+  }
+
   requestAnimationFrame(animateParticles);
 }
+
+// === Обновление цвета частиц под тему ===
+function updateParticleColor(theme) {
+  if (theme === "dark") {
+    setParticleColor("255, 255, 255");
+  } else {
+    setParticleColor("50, 50, 50");
+  }
+}
+
+// === Инициализация ===
+createParticles();
 animateParticles();
+
+// Добавляем вызов updateParticleColor в setTheme
+function setTheme(theme) {
+  document.body.classList.remove("dark-theme", "light-theme");
+  document.body.classList.add(`${theme}-theme`);
+  themeToggle.textContent = theme === "dark" ? "🌙 Переключить тему" : "☀️ Переключить тему";
+  localStorage.setItem("theme", theme);
+  updateParticleColor(theme); // ← Обновляем цвет частиц
+}
