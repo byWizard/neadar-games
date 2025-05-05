@@ -124,6 +124,60 @@ function setTheme(theme) {
   document.body.classList.add(`${theme}-theme`);
   themeToggle.textContent = theme === "dark" ? "🌙 Переключить тему" : "☀️ Переключить тему";
   localStorage.setItem("theme", theme);
+
+  // Цвет частиц под тему
+  updateParticleColor(theme);
+}
+
+function updateParticleColor(theme) {
+  const color = theme === "dark" ? "#ffffff" : "#333333";
+  particlesJS("particles", {
+    particles: {
+      number: {
+        value: 80,
+        density: {
+          enable: true,
+          value_area: 800
+        }
+      },
+      color: {
+        value: color
+      },
+      shape: {
+        type: "circle"
+      },
+      opacity: {
+        value: 0.5
+      },
+      size: {
+        value: 3
+      },
+      line_linked: {
+        enable: true,
+        distance: 150,
+        color: color,
+        opacity: 0.4,
+        width: 1
+      },
+      move: {
+        enable: true,
+        speed: 1
+      }
+    },
+    interactivity: {
+      detect_on: "canvas",
+      events: {
+        onhover: {
+          enable: true,
+          mode: "grab"
+        },
+        onclick: {
+          enable: true,
+          mode: "push"
+        }
+      }
+    }
+  });
 }
 
 themeToggle.addEventListener("click", () => {
@@ -190,7 +244,7 @@ function saveData() {
 addGameForm.addEventListener("submit", e => {
   e.preventDefault();
   games.push({
-    id: Date.now(), // Уникальный ID
+    id: Date.now(),
     title: gameTitle.value.trim(),
     image: gameImage.value.trim(),
     description: gameDescription.value.trim(),
