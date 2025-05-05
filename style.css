@@ -450,3 +450,63 @@ footer strong.version-tag {
 #authOnlyOverlay {
   display: none; /* По умолчанию скрыт */
 }
+
+/* === Бургер-меню === */
+.menu-toggle {
+  position: absolute;
+  top: 1rem;
+  right: 6rem; /* Чтобы не мешал с переключателем темы */
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+/* === Боковое меню === */
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: -300px; /* Скрыто за экраном */
+  width: 300px;
+  height: 100%;
+  background: var(--card-bg);
+  box-shadow: -2px 0 10px rgba(0,0,0,0.5);
+  padding: 1rem;
+  z-index: 9998;
+  transition: right 0.3s ease;
+}
+
+.sidebar.open {
+  right: 0;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.menu-close {
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.sidebar-section {
+  margin-bottom: 1.5rem;
+}
+
+.leaderboard-list {
+  list-style: none;
+  padding-left: 0;
+}
+.leaderboard-list li {
+  padding: 0.4rem;
+  border-bottom: 1px solid var(--border-color);
+}
+.leaderboard-list li:last-child {
+  border-bottom: none;
+}
