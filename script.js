@@ -400,60 +400,90 @@ document.getElementById("importInput").addEventListener("change", e => {
   reader.readAsText(file);
 });
 
-// === Инициализация particles.js ===
-function initParticles() {
-  if (typeof particlesJS === "function") {
-    particlesJS("particles", {
-      particles: {
-        number: {
-          value: 80,
-          density: {
-            enable: true,
-            value_area: 800
-          }
-        },
-        color: {
-          value: "#ffffff"
-        },
-        shape: {
-          type: "circle"
-        },
-        opacity: {
-          value: 0.5
-        },
-        size: {
-          value: 3,
-          random: true
-        },
-        line_linked: {
-          enable: true,
-          distance: 150,
-          color: "#ffffff",
-          opacity: 0.4,
-          width: 1
-        },
-        move: {
-          enable: true,
-          speed: 1
-        }
-      },
-      interactivity: {
-        detect_on: "canvas",
-        events: {
-          onhover: {
-            enable: true,
-            mode: "grab"
-          },
-          onclick: {
-            enable: true,
-            mode: "push"
-          }
-        }
-      }
-    });
-  } else {
-    console.error("❌ particles.js не загружена");
+// === Частицы через Canvas (без библиотек) ===
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
+
+let particles = [];
+let width, height;
+
+function resizeCanvas() {
+  width = (canvas.width = window.innerWidth);
+  height = (canvas.height = window.innerHeight);
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+
+class Particle {
+  constructor() {
+    this.reset();
   }
+
+  reset() {
+    this.x = Math.random() * width;
+    this.y = Math.random() * height;
+    this.vx = (Math.random() - 0.5) * 0.5;
+    this.vy = (Math.random() - 0.5) * 0.5;
+    this.radius = Math.random() * 2 + 1;
+    this.alpha = Math.random() * 0.5 + 0.3;
+  }
+
+  draw() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
+    ctx.fill();
+  }
+
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+
+    if (this.x < 0 || this.x > width) this.reset();
+    if (this.y < 0 || this.y > height) this.reset();
+  }
+}
+
+function createParticles(num = 150) {
+  particles = [];
+  for (let i = 0; i < num; i++) {
+    particles.push(new Particle());
+  }
+}
+createParticles();
+
+function animateParticles() {
+  ctx.clearRect(0, 0, width, height);
+
+  // Рисуем точки
+  particles.forEach(p => {
+    p.update();
+    p.draw();
+  });
+
+  // Рисуем линии между близкими частицами
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const p1 = particles[i];
+      const p2 = particles[j];
+      const dx = p1.x - p2.x;
+      const dy = p1.y - p2.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist < 100) {
+        ctx.strokeStyle = `rgba(255, 255, 255, ${0.7 * (1 - dist / 100)})`;
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+      }
+    }
+  }
+
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
 }
 
 window.addEventListener("load", initParticles);
