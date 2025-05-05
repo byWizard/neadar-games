@@ -369,8 +369,8 @@ class Particle {
   reset() {
     this.x = Math.random() * width;
     this.y = Math.random() * height;
-    this.vx = (Math.random() - 0.5) * 0.5;
-    this.vy = (Math.random() - 0.5) * 0.5;
+    this.vx = (Math.random() - 0.5) * 1.3;
+    this.vy = (Math.random() - 0.5) * 1.3;
     this.radius = Math.random() * 2 + 1;
     this.alpha = Math.random() * 0.5 + 0.3;
   }
