@@ -17,7 +17,7 @@ const authRequiredLoginBtn = document.getElementById("authRequiredLoginBtn");
 
 let games = [];
 let currentUser = null;
-
+let isLoadingAuth = true;
 // === Firebase Setup ===
 const firebaseConfig = {
   apiKey: "AIzaSyDhMfbhd7emAXNKDexXxaCxZ0k2DfkRcVg",
