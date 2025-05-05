@@ -6,16 +6,14 @@ const gameImage = document.getElementById("gameImage");
 const gameDescription = document.getElementById("gameDescription");
 const gameSearchInput = document.getElementById("gameSearch");
 const searchResults = document.getElementById("searchResults");
-const searchInput = document.getElementById("searchInput");
-const filterSelect = document.getElementById("filterSelect");
+const searchInput = document.getElementById("searchInput"); // Поиск по списку
+const filterSelect = document.getElementById("filterSelect"); // Фильтр по статусу
 const doneCountEl = document.getElementById("doneCount");
 const authBtn = document.getElementById("authBtn");
 const userStatus = document.getElementById("userStatus");
 const themeToggle = document.getElementById("themeToggle");
-
 const authOnlyOverlay = document.getElementById("authOnlyOverlay");
 const authRequiredLoginBtn = document.getElementById("authRequiredLoginBtn");
-
 let games = [];
 let currentUser = null;
 
@@ -29,7 +27,6 @@ const firebaseConfig = {
   messagingSenderId: "251367004030",
   appId: "1:251367004030:web:2b1be1b1c76ee80c0d052f"
 };
-
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const database = firebase.database();
@@ -84,7 +81,7 @@ async function searchGame(query) {
   }
 }
 
-// === Обработчик поиска ===
+// === Обработчик поиска по играм ===
 let debounceTimer;
 gameSearchInput.addEventListener("input", e => {
   const query = e.target.value.trim();
@@ -171,42 +168,35 @@ auth.onAuthStateChanged((user) => {
     currentUser = user;
     authBtn.textContent = "Выйти";
     userStatus.textContent = `Вы вошли как ${user.displayName}`;
-
     // Грузим данные из Firebase
     database.ref(`users/${currentUser.uid}`).once("value")
       .then(snapshot => {
         const data = snapshot.val();
         const firebaseData = data?.games || [];
-
         // Используем Firebase, если он не пустой
         games = firebaseData.length > 0 ? firebaseData : JSON.parse(localStorage.getItem("games")) || [];
         localStorage.setItem("games", JSON.stringify(games));
-        renderGames();
+        applyFilters(); // ← Теперь вызываем applyFilters()
         toggleAuthUI(false); // скрываем оверлей
       })
       .catch(error => {
         console.error("Ошибка при загрузке данных из Firebase:", error);
         games = JSON.parse(localStorage.getItem("games")) || [];
-        renderGames();
+        applyFilters(); // ←
         toggleAuthUI(false);
       });
-
   } else {
     currentUser = null;
     authBtn.textContent = "Войти через Google";
     userStatus.textContent = "Вы не вошли";
     games = JSON.parse(localStorage.getItem("games")) || [];
-    renderGames();
+    applyFilters(); // ←
     toggleAuthUI(true); // показываем оверлей
   }
 });
 
 function toggleAuthUI(isVisible) {
-  if (isVisible) {
-    authOnlyOverlay.style.display = "flex";
-  } else {
-    authOnlyOverlay.style.display = "none";
-  }
+  authOnlyOverlay.style.display = isVisible ? "flex" : "none";
 }
 
 // === Сохранение данных ===
@@ -229,21 +219,34 @@ addGameForm.addEventListener("submit", e => {
   };
   games.push(newGame);
   saveData();
-  renderGames();
+  applyFilters(); // ←
   addGameForm.reset();
 });
 
-// === Отображение игр ===
-function renderGames() {
+// === Отображение игр с фильтрацией ===
+function applyFilters() {
+  const searchTerm = searchInput.value.trim().toLowerCase();
+  const filterValue = filterSelect.value;
+
+  const filteredGames = games.filter(game => {
+    const matchesSearch = game.title.toLowerCase().includes(searchTerm);
+    const matchesFilter = filterValue === "all" || game.status === filterValue;
+    return matchesSearch && matchesFilter;
+  });
+
+  renderFilteredGames(filteredGames);
+}
+
+function renderFilteredGames(filteredGames) {
   cardsContainer.innerHTML = "";
-  games.forEach((game, index) => {
+  filteredGames.forEach((game, index) => {
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
       <img src="${game.image}" alt="${game.title}">
       <h2>${game.title}</h2>
-      <span class="status want">Хочу пройти</span>
-      <div class="stars" data-rating="0"></div>
+      <span class="status ${game.status === "done" ? "done" : "want"}">${game.status === "done" ? "Пройдена" : "Хочу пройти"}</span>
+      <div class="stars" data-rating="${game.rating || 0}"></div>
       <small>Добавлено</small>
       <textarea class="description">${game.description || ""}</textarea>
       <button class="delete-btn">🗑️ Удалить</button>
@@ -258,7 +261,6 @@ function renderGames() {
       starsEl.appendChild(star);
     }
     updateStarDisplay(starsEl, game.rating || 0);
-
     starsEl.addEventListener("click", e => {
       if (e.target.tagName === "SPAN") {
         const rating = parseInt(e.target.dataset.rating);
@@ -291,13 +293,8 @@ function renderGames() {
     deleteBtn.addEventListener("click", () => {
       games.splice(index, 1);
       saveData();
-      renderGames();
+      applyFilters(); // ←
     });
-
-    if (game.status === "done") {
-      statusEl.className = "status done";
-      statusEl.textContent = "Пройдена";
-    }
 
     cardsContainer.appendChild(card);
   });
@@ -337,7 +334,7 @@ document.getElementById("importInput").addEventListener("change", e => {
       if (Array.isArray(importedGames)) {
         games = importedGames;
         saveData();
-        renderGames();
+        applyFilters(); // ←
         alert("✅ Игры успешно импортированы!");
       } else {
         throw new Error("Формат данных неверен");
@@ -355,7 +352,6 @@ const canvas = document.getElementById("particles");
 const ctx = canvas.getContext("2d");
 let width, height;
 let particles = [];
-
 const mouse = {
   x: null,
   y: null,
@@ -378,6 +374,7 @@ class Particle {
   constructor() {
     this.reset();
   }
+
   reset() {
     this.x = Math.random() * width;
     this.y = Math.random() * height;
@@ -386,12 +383,14 @@ class Particle {
     this.vx = (Math.random() - 0.5) * 0.5;
     this.vy = (Math.random() - 0.5) * 0.5;
   }
+
   draw() {
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
     ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
     ctx.fill();
   }
+
   update() {
     if (mouse.x !== null && mouse.y !== null) {
       const dx = this.x - mouse.x;
