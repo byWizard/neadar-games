@@ -154,25 +154,27 @@ authRequiredLoginBtn.addEventListener("click", () => {
 // === Слушатель состояния пользователя ===
 auth.onAuthStateChanged((user) => {
   isLoadingAuth = false;
+
   if (user) {
     currentUser = user;
     authBtn.textContent = "Выйти";
     userStatus.textContent = `Вы вошли как ${user.displayName}`;
-
-    // Загружаем данные только из Firebase
+    updateProfileUI(user); // ✅ Обновляем профиль в меню
     database.ref(`users/${currentUser.uid}`).once("value").then(snapshot => {
       const data = snapshot.val();
-      games = data?.games || []; // ❗ Не используем localStorage, если пользователь залогинен
-
+      games = data?.games || [];
       applyFilters();
       toggleAuthUI(false);
+      loadLeaderboard(); // ✅ Загружаем топ
     }).catch(console.error);
 
   } else {
     currentUser = null;
     authBtn.textContent = "Войти через Google";
     userStatus.textContent = "Вы не вошли";
-    games = []; // ❗ При выходе всегда чистим список
+    profileName.textContent = "Не авторизован";
+    profilePhoto.src = "";
+    games = JSON.parse(localStorage.getItem("games")) || [];
     applyFilters();
     toggleAuthUI(true);
   }
