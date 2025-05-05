@@ -447,3 +447,10 @@ window.addEventListener("resize", () => {
   resizeCanvas();
   initParticles(150);
 });
+
+function testFilter() {
+  console.log("Количество игр до фильтра:", games.length);
+  const filtered = games.filter(g => g.title.toLowerCase().includes("the"));
+  console.log("Отфильтрованные игры:", filtered);
+}
+setTimeout(testFilter, 2000);
