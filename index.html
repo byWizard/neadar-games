@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Мои пройденные игры</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+</head>
+<body class="dark-theme">
+
+  <!-- Canvas для анимированных частиц -->
+  <canvas id="particles"></canvas>
+
+  <!-- Экран для неавторизованных пользователей -->
+  <div id="authOnlyOverlay">
+    <h2>🔒 Войдите, чтобы продолжить</h2>
+    <p>Добавляйте игры, сохраняйте прогресс и делитесь списком с друзьями.</p>
+    <button id="authRequiredLoginBtn">Войти через Google</button>
+  </div>
+
+  <header>
+    <h1>Мои пройденные игры</h1>
+    <p>Игры, которые я полностью прошёл или планирую пройти</p>
+    <button id="themeToggle">🌙 Переключить тему</button>
+  </header>
+
+  <!-- Авторизация -->
+  <div id="auth-container">
+    <button id="authBtn">Войти через Google</button>
+    <p id="userStatus">Вы не вошли</p>
+  </div>
+
+  <!-- Резервное копирование -->
+  <div class="backup-section">
+    <button id="exportBtn">📥 Экспортировать список</button>
+    <input type="file" id="importInput" accept=".json" />
+    <label for="importInput">📁 Импортировать список</label>
+  </div>
+
+  <!-- Форма добавления -->
+  <section class="add-game">
+    <h2>Добавить новую игру</h2>
+    <form id="addGameForm">
+      <input type="text" id="gameSearch" placeholder="Поиск по названию игры..." />
+      <small class="search-hint">Пишите название → здесь появятся варианты</small>
+      <ul id="searchResults" class="search-results"></ul>
+      <input type="text" id="gameTitle" placeholder="Название игры" required />
+      <input type="url" id="gameImage" placeholder="Ссылка на картинку" required />
+      <textarea id="gameDescription" placeholder="Описание"></textarea>
+      <button type="submit">Добавить игру</button>
+    </form>
+  </section>
+
+  <!-- Поиск и фильтр -->
+  <div class="search-filter">
+    <input type="text" id="searchInput" placeholder="Найти игру..." />
+    <select id="filterSelect">
+      <option value="all">Все</option>
+      <option value="done">Пройденные</option>
+      <option value="want">Хочу пройти</option>
+    </select>
+  </div>
+
+  <!-- Статистика -->
+  <div class="stats">
+    <p><strong>Пройдено:</strong> <span id="doneCount">0</span></p>
+  </div>
+
+  <!-- Карточки -->
+  <section class="cards" id="cardsContainer">
+    <!-- Здесь будут динамически добавленные карточки -->
+  </section>
+
+  <footer>
+    <p>© 2025 Neadar v1.89 | Хостится на GitHub Pages</p>
+    <p><a href="https://t.me/neadar" target="_blank">Telegram: @neadar</a></p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
