@@ -412,3 +412,33 @@ footer a:hover {
   z-index: -1;
   pointer-events: none;
 }
+
+/* === Подвал === */
+footer {
+  text-align: center;
+  margin-top: 3rem;
+  font-size: 0.9rem;
+  color: var(--secondary-text);
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+footer a {
+  color: var(--accent-color);
+  text-decoration: none;
+  transition: opacity 0.3s ease;
+}
+
+footer a:hover {
+  opacity: 0.7;
+}
+
+footer p {
+  margin: 0.3rem 0;
+}
+
+footer strong.version-tag {
+  color: var(--accent-color);
+  font-weight: 600;
+}
