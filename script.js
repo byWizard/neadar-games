@@ -144,17 +144,13 @@ authBtn.addEventListener("click", () => {
     auth.signOut();
   } else {
     const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider).catch(err => {
-      alert("Ошибка входа: " + err.message);
-    });
+    auth.signInWithPopup(provider).catch(err => alert("Ошибка входа: " + err.message));
   }
 });
 
 authRequiredLoginBtn.addEventListener("click", () => {
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).catch(err => {
-    alert("Ошибка входа: " + err.message);
-  });
+  auth.signInWithPopup(provider).catch(err => alert("Ошибка входа: " + err.message));
 });
 
 // === Слушатель состояния пользователя ===
@@ -163,16 +159,14 @@ auth.onAuthStateChanged((user) => {
     currentUser = user;
     authBtn.textContent = "Выйти";
     userStatus.textContent = `Вы вошли как ${user.displayName}`;
-    database.ref(`users/${currentUser.uid}`).once("value")
-      .then(snapshot => {
-        const data = snapshot.val();
-        const firebaseData = data?.games || [];
-        games = firebaseData.length > 0 ? firebaseData : JSON.parse(localStorage.getItem("games")) || [];
-        localStorage.setItem("games", JSON.stringify(games));
-        applyFilters();
-        toggleAuthUI(false);
-      })
-      .catch(console.error);
+    database.ref(`users/${currentUser.uid}`).once("value").then(snapshot => {
+      const data = snapshot.val();
+      const firebaseData = data?.games || [];
+      games = firebaseData.length > 0 ? firebaseData : JSON.parse(localStorage.getItem("games")) || [];
+      localStorage.setItem("games", JSON.stringify(games));
+      applyFilters();
+      toggleAuthUI(false);
+    }).catch(console.error);
   } else {
     currentUser = null;
     authBtn.textContent = "Войти через Google";
@@ -223,14 +217,13 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function applyFilters() {
-  const searchTerm = searchInput.value.trim().toLowerCase();
-  const filterValue = filterSelect.value;
+  const searchTerm = document.getElementById("searchInput").value.trim().toLowerCase();
+  const filterValue = document.getElementById("filterSelect").value;
 
-  const filteredGames = games.filter(game => {
-    const matchesSearch = game.title.toLowerCase().includes(searchTerm);
-    const matchesFilter = filterValue === "all" || game.status === filterValue;
-    return matchesSearch && matchesFilter;
-  });
+  const filteredGames = games.filter(game =>
+    game.title.toLowerCase().includes(searchTerm) &&
+    (filterValue === "all" || game.status === filterValue)
+  );
 
   renderFilteredGames(filteredGames);
 }
@@ -250,7 +243,7 @@ function renderFilteredGames(filteredGames) {
       <button class="delete-btn">🗑️ Удалить</button>
     `;
 
-    // Звёзды рейтинга
+    // Звёзды
     const starsEl = card.querySelector(".stars");
     for (let i = 1; i <= 5; i++) {
       const star = document.createElement("span");
@@ -261,9 +254,8 @@ function renderFilteredGames(filteredGames) {
     updateStarDisplay(starsEl, game.rating || 0);
     starsEl.addEventListener("click", e => {
       if (e.target.tagName === "SPAN") {
-        const rating = parseInt(e.target.dataset.rating);
-        game.rating = rating;
-        updateStarDisplay(starsEl, rating);
+        game.rating = parseInt(e.target.dataset.rating);
+        updateStarDisplay(starsEl, game.rating);
         saveData();
       }
     });
@@ -273,7 +265,7 @@ function renderFilteredGames(filteredGames) {
     statusEl.addEventListener("click", () => {
       game.status = game.status === "done" ? "want" : "done";
       saveData();
-      applyFilters();
+      applyFilters(); // перерисовываем с учётом нового статуса
     });
 
     // Описание
@@ -304,8 +296,7 @@ function updateStarDisplay(container, rating) {
 }
 
 function updateStats() {
-  const done = games.filter(g => g.status === "done").length;
-  doneCountEl.textContent = done;
+  doneCountEl.textContent = games.filter(g => g.status === "done").length;
 }
 
 // ==== ЭКСПОРТ / ИМПОРТ ====
