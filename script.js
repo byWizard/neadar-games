@@ -484,4 +484,3 @@ function animateParticles() {
   requestAnimationFrame(animateParticles);
 }
 animateParticles();
-}
