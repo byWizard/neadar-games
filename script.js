@@ -153,6 +153,7 @@ authRequiredLoginBtn.addEventListener("click", () => {
 
 // === Слушатель состояния пользователя ===
 auth.onAuthStateChanged((user) => {
+  isLoadingAuth = false;
   if (user) {
     currentUser = user;
     authBtn.textContent = "Выйти";
