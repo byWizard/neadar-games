@@ -228,9 +228,9 @@ function applyFilters() {
   renderFilteredGames(filteredGames);
 }
 
-function renderFilteredGames(filteredGames) {
+function renderGames() {
   cardsContainer.innerHTML = "";
-  filteredGames.forEach((game, index) => {
+  games.forEach((game, index) => {
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
@@ -243,7 +243,7 @@ function renderFilteredGames(filteredGames) {
       <button class="delete-btn">🗑️ Удалить</button>
     `;
 
-    // Звёзды
+    // Звёзды рейтинга
     const starsEl = card.querySelector(".stars");
     for (let i = 1; i <= 5; i++) {
       const star = document.createElement("span");
@@ -254,18 +254,19 @@ function renderFilteredGames(filteredGames) {
     updateStarDisplay(starsEl, game.rating || 0);
     starsEl.addEventListener("click", e => {
       if (e.target.tagName === "SPAN") {
-        game.rating = parseInt(e.target.dataset.rating);
-        updateStarDisplay(starsEl, game.rating);
+        const rating = parseInt(e.target.dataset.rating);
+        game.rating = rating;
+        updateStarDisplay(starsEl, rating);
         saveData();
       }
     });
 
-    // Статус
+    // Статус игры
     const statusEl = card.querySelector(".status");
     statusEl.addEventListener("click", () => {
       game.status = game.status === "done" ? "want" : "done";
       saveData();
-      applyFilters(); // перерисовываем с учётом нового статуса
+      renderGames(); // Перерисовываем с новым статусом
     });
 
     // Описание
@@ -281,8 +282,13 @@ function renderFilteredGames(filteredGames) {
     deleteBtn.addEventListener("click", () => {
       games.splice(index, 1);
       saveData();
-      applyFilters();
+      renderGames();
     });
+
+    cardsContainer.appendChild(card);
+  });
+  updateStats();
+}
 
     cardsContainer.appendChild(card);
   });
