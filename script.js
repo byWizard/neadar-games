@@ -157,17 +157,21 @@ auth.onAuthStateChanged((user) => {
     currentUser = user;
     authBtn.textContent = "Выйти";
     userStatus.textContent = `Вы вошли как ${user.displayName}`;
+
+    // Загружаем данные только из Firebase
     database.ref(`users/${currentUser.uid}`).once("value").then(snapshot => {
       const data = snapshot.val();
-      games = data?.games || [];
+      games = data?.games || []; // ❗ Не используем localStorage, если пользователь залогинен
+
       applyFilters();
       toggleAuthUI(false);
     }).catch(console.error);
+
   } else {
     currentUser = null;
     authBtn.textContent = "Войти через Google";
     userStatus.textContent = "Вы не вошли";
-    games = [];
+    games = []; // ❗ При выходе всегда чистим список
     applyFilters();
     toggleAuthUI(true);
   }
