@@ -293,7 +293,7 @@ function renderFilteredGames(filteredGames) {
     deleteBtn.addEventListener("click", () => {
       games.splice(index, 1);
       saveData();
-      applyFilters(); // ←
+      applyFilters();
     });
 
     cardsContainer.appendChild(card);
@@ -334,7 +334,7 @@ document.getElementById("importInput").addEventListener("change", e => {
       if (Array.isArray(importedGames)) {
         games = importedGames;
         saveData();
-        applyFilters(); // ←
+        applyFilters();
         alert("✅ Игры успешно импортированы!");
       } else {
         throw new Error("Формат данных неверен");
