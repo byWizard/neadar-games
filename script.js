@@ -485,5 +485,3 @@ function animateParticles() {
 }
 animateParticles();
 }
-
-window.addEventListener("load", initParticles);
