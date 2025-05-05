@@ -14,7 +14,6 @@ const userStatus = document.getElementById("userStatus");
 const themeToggle = document.getElementById("themeToggle");
 const authOnlyOverlay = document.getElementById("authOnlyOverlay");
 const authRequiredLoginBtn = document.getElementById("authRequiredLoginBtn");
-
 let games = [];
 let currentUser = null;
 
@@ -37,7 +36,8 @@ const CACHE_KEY = "gameSearchCache";
 const searchCache = loadCacheFromStorage();
 
 function loadCacheFromStorage() {
-  return JSON.parse(localStorage.getItem(CACHE_KEY)) || {};
+  const cached = localStorage.getItem(CACHE_KEY);
+  return cached ? JSON.parse(cached) : {};
 }
 
 function saveCacheToStorage() {
@@ -46,12 +46,17 @@ function saveCacheToStorage() {
 
 function getFromCache(query) {
   const cached = searchCache[query];
-  if (cached && Date.now() < cached.expiresAt) return cached.data;
+  if (cached && Date.now() < cached.expiresAt) {
+    return cached.data;
+  }
   return null;
 }
 
 function setToCache(query, data, ttl = 3600000) {
-  searchCache[query] = { data, expiresAt: Date.now() + ttl };
+  searchCache[query] = {
+    data,
+    expiresAt: Date.now() + ttl
+  };
   saveCacheToStorage();
 }
 
@@ -144,13 +149,17 @@ authBtn.addEventListener("click", () => {
     auth.signOut();
   } else {
     const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider).catch(err => alert("Ошибка входа: " + err.message));
+    auth.signInWithPopup(provider).catch(err => {
+      alert("Ошибка входа: " + err.message);
+    });
   }
 });
 
 authRequiredLoginBtn.addEventListener("click", () => {
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).catch(err => alert("Ошибка входа: " + err.message));
+  auth.signInWithPopup(provider).catch(err => {
+    alert("Ошибка входа: " + err.message);
+  });
 });
 
 // === Слушатель состояния пользователя ===
@@ -159,26 +168,39 @@ auth.onAuthStateChanged((user) => {
     currentUser = user;
     authBtn.textContent = "Выйти";
     userStatus.textContent = `Вы вошли как ${user.displayName}`;
-    database.ref(`users/${currentUser.uid}`).once("value").then(snapshot => {
-      const data = snapshot.val();
-      const firebaseData = data?.games || [];
-      games = firebaseData.length > 0 ? firebaseData : JSON.parse(localStorage.getItem("games")) || [];
-      localStorage.setItem("games", JSON.stringify(games));
-      applyFilters();
-      toggleAuthUI(false);
-    }).catch(console.error);
+    // Грузим данные из Firebase
+    database.ref(`users/${currentUser.uid}`).once("value")
+      .then(snapshot => {
+        const data = snapshot.val();
+        const firebaseData = data?.games || [];
+        // Используем Firebase, если он не пустой
+        games = firebaseData.length > 0 ? firebaseData : JSON.parse(localStorage.getItem("games")) || [];
+        localStorage.setItem("games", JSON.stringify(games));
+        applyFilters(); // ← Теперь вызываем applyFilters()
+        toggleAuthUI(false); // скрываем оверлей
+      })
+      .catch(error => {
+        console.error("Ошибка при загрузке данных из Firebase:", error);
+        games = JSON.parse(localStorage.getItem("games")) || [];
+        applyFilters(); // ←
+        toggleAuthUI(false);
+      });
   } else {
     currentUser = null;
     authBtn.textContent = "Войти через Google";
     userStatus.textContent = "Вы не вошли";
     games = JSON.parse(localStorage.getItem("games")) || [];
-    applyFilters();
-    toggleAuthUI(true);
+    applyFilters(); // ←
+    toggleAuthUI(true); // показываем оверлей
   }
 });
 
 function toggleAuthUI(isVisible) {
-  authOnlyOverlay.style.display = isVisible ? "flex" : "none";
+  if (isVisible) {
+    authOnlyOverlay.style.display = "flex";
+  } else {
+    authOnlyOverlay.style.display = "none";
+  }
 }
 
 // === Сохранение данных ===
@@ -201,36 +223,27 @@ addGameForm.addEventListener("submit", e => {
   };
   games.push(newGame);
   saveData();
-  applyFilters();
+  applyFilters(); // ←
   addGameForm.reset();
 });
 
-// === Фильтрация ===
-document.addEventListener("DOMContentLoaded", () => {
-  const searchInput = document.getElementById("searchInput");
-  const filterSelect = document.getElementById("filterSelect");
-
-  if (searchInput && filterSelect) {
-    searchInput.addEventListener("input", applyFilters);
-    filterSelect.addEventListener("change", applyFilters);
-  }
-});
-
+// === Отображение игр с фильтрацией ===
 function applyFilters() {
-  const searchTerm = document.getElementById("searchInput").value.trim().toLowerCase();
-  const filterValue = document.getElementById("filterSelect").value;
+  const searchTerm = searchInput.value.trim().toLowerCase();
+  const filterValue = filterSelect.value;
 
-  const filteredGames = games.filter(game =>
-    game.title.toLowerCase().includes(searchTerm) &&
-    (filterValue === "all" || game.status === filterValue)
-  );
+  const filteredGames = games.filter(game => {
+    const matchesSearch = game.title.toLowerCase().includes(searchTerm);
+    const matchesFilter = filterValue === "all" || game.status === filterValue;
+    return matchesSearch && matchesFilter;
+  });
 
   renderFilteredGames(filteredGames);
 }
 
-function renderGames() {
+function renderFilteredGames(filteredGames) {
   cardsContainer.innerHTML = "";
-  games.forEach((game, index) => {
+  filteredGames.forEach((game, index) => {
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
@@ -266,7 +279,7 @@ function renderGames() {
     statusEl.addEventListener("click", () => {
       game.status = game.status === "done" ? "want" : "done";
       saveData();
-      renderGames(); // Перерисовываем с новым статусом
+      applyFilters(); // перерисовываем с учётом нового статуса
     });
 
     // Описание
@@ -282,13 +295,8 @@ function renderGames() {
     deleteBtn.addEventListener("click", () => {
       games.splice(index, 1);
       saveData();
-      renderGames();
+      applyFilters(); // перерисовываем с учётом удаления
     });
-
-    cardsContainer.appendChild(card);
-  });
-  updateStats();
-}
 
     cardsContainer.appendChild(card);
   });
@@ -302,12 +310,14 @@ function updateStarDisplay(container, rating) {
 }
 
 function updateStats() {
-  doneCountEl.textContent = games.filter(g => g.status === "done").length;
+  const done = games.filter(g => g.status === "done").length;
+  doneCountEl.textContent = done;
 }
 
 // ==== ЭКСПОРТ / ИМПОРТ ====
 document.getElementById("exportBtn").addEventListener("click", () => {
-  const blob = new Blob([JSON.stringify(games, null, 2)], { type: "application/json" });
+  const dataStr = JSON.stringify(games, null, 2);
+  const blob = new Blob([dataStr], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -320,14 +330,20 @@ document.getElementById("importInput").addEventListener("change", e => {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = event => {
+  reader.onload = (event) => {
     try {
-      games = JSON.parse(event.target.result);
-      saveData();
-      applyFilters();
-      alert("✅ Игры импортированы!");
-    } catch (e) {
-      alert("❌ Ошибка импорта.");
+      const importedGames = JSON.parse(event.target.result);
+      if (Array.isArray(importedGames)) {
+        games = importedGames;
+        saveData();
+        applyFilters(); // ←
+        alert("✅ Игры успешно импортированы!");
+      } else {
+        throw new Error("Формат данных неверен");
+      }
+    } catch (err) {
+      alert("❌ Ошибка при чтении файла.");
+      console.error(err);
     }
   };
   reader.readAsText(file);
@@ -391,7 +407,7 @@ class Particle {
     }
     this.x += this.vx;
     this.y += this.vy;
-    if (this.x < 0 || this.y < 0 || this.x > width || this.y > height) {
+    if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) {
       this.reset();
     }
   }
@@ -414,9 +430,9 @@ function animate() {
 }
 
 resizeCanvas();
-initParticles();
+initParticles(150);
 animate();
 window.addEventListener("resize", () => {
   resizeCanvas();
-  initParticles();
+  initParticles(150);
 });
