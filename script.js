@@ -409,7 +409,7 @@ class Particle {
   }
 }
 
-function createParticles(num = 100) {
+function createParticles(num = 190) {
   particles = [];
   for (let i = 0; i < num; i++) {
     const p = new Particle();
