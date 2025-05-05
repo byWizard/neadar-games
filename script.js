@@ -483,3 +483,71 @@ function updateParticleColor(theme) {
 // === Инициализация ===
 createParticles();
 animateParticles();
+
+// === Бургер-меню ===
+const menuToggle = document.getElementById("menuToggle");
+const sidebar = document.getElementById("sidebar");
+const menuClose = document.getElementById("menuClose");
+const profileName = document.getElementById("profileName");
+const profilePhoto = document.getElementById("profilePhoto");
+const signOutBtn = document.getElementById("signOutBtn");
+const leaderboardList = document.getElementById("leaderboard");
+
+menuToggle.addEventListener("click", () => {
+  sidebar.classList.add("open");
+});
+
+menuClose.addEventListener("click", () => {
+  sidebar.classList.remove("open");
+});
+
+signOutBtn.addEventListener("click", () => {
+  auth.signOut().then(() => {
+    localStorage.removeItem("games");
+    alert("Вы вышли из аккаунта");
+  });
+});
+
+// Обновление данных профиля
+function updateProfileUI(user) {
+  if (!user) return;
+  profileName.textContent = user.displayName || "Пользователь";
+  profilePhoto.src = user.photoURL || "https://i.pravatar.cc/150?img=1";
+}
+
+// Заполнение топа пользователей
+function loadLeaderboard() {
+  database.ref("users").once("value").then(snapshot => {
+    const users = snapshot.val();
+    if (!users) return;
+
+    const userList = Object.entries(users)
+      .map(([uid, data]) => ({
+        uid,
+        name: data.displayName || "Аноним",
+        count: Array.isArray(data.games) ? data.games.filter(g => g.status === "done").length : 0
+      }))
+      .sort((a, b) => b.count - a.count);
+
+    leaderboardList.innerHTML = "";
+    userList.slice(0, 10).forEach(user => {
+      const li = document.createElement("li");
+      li.innerHTML = `<strong>${user.name}</strong> — ${user.count} игр`;
+      li.style.cursor = "pointer";
+      li.title = "Нажмите, чтобы открыть список";
+      li.addEventListener("click", () => openUserGames(user.uid));
+      leaderboardList.appendChild(li);
+    });
+  });
+}
+
+// Открытие списка игр пользователя
+function openUserGames(uid) {
+  database.ref(`users/${uid}`).once("value").then(snapshot => {
+    const data = snapshot.val();
+    games = data?.games || [];
+    applyFilters();
+    sidebar.classList.remove("open");
+    alert(`Теперь вы просматриваете список игр пользователя ${data.displayName}`);
+  });
+}
