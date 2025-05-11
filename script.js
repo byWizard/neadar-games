@@ -525,6 +525,10 @@ const nicknameInput = document.getElementById("nicknameInput");
 const avatarUrlInput = document.getElementById("avatarUrlInput");
 const avatarInput = document.getElementById("avatarInput");
 const editProfileForm = document.getElementById("editProfileForm");
+const userIdInput = document.getElementById("userIdInput");
+const profileDescriptionInput = document.getElementById("profileDescriptionInput");
+const friendSearchInput = document.getElementById("friendSearchInput");
+const searchFriendBtn = document.getElementById("searchFriendBtn");
 
 let uploadedAvatarDataURL = null; // Для временного хранения Data URL
 
@@ -567,7 +571,9 @@ function updateProfileUI() {
     profileNickname.textContent = nickname;
     profileAvatar.src = avatarUrl;
     nicknameInput.value = nickname;
-    avatarUrlInput.value = profileData.avatarUrl || ""; // Только если есть сохранённая ссылка
+    avatarUrlInput.value = profileData.avatarUrl || "";
+    profileDescriptionInput.value = profileData.description || "";
+    userIdInput.value = profileData.userId || currentUser.uid;
     profileDoneCount.textContent = gamesList.filter(g => g.status === "done").length;
   });
 }
@@ -596,6 +602,8 @@ editProfileForm.addEventListener("submit", (e) => {
 
   const newNick = nicknameInput.value.trim();
   let newAvatar = uploadedAvatarDataURL || avatarUrlInput.value.trim();
+  const newUserId = userIdInput.value.trim() || currentUser.uid;
+  const newDescription = profileDescriptionInput.value.trim();
 
   if (!newNick) {
     alert("Введите никнейм!");
@@ -611,10 +619,13 @@ editProfileForm.addEventListener("submit", (e) => {
       displayName: newNick,
       photoURL: newAvatar
     }).then(() => {
-      // Сохраняем в Firebase Realtime Database
+      // Сохраняем в профиль
       database.ref(`profiles/${currentUser.uid}`).set({
         nickname: newNick,
-        avatarUrl: newAvatar
+        avatarUrl: newAvatar,
+        description: newDescription,
+        userId: newUserId,
+        joinedAt: new Date().toISOString()
       });
 
       alert("✅ Профиль успешно обновлён!");
@@ -624,4 +635,46 @@ editProfileForm.addEventListener("submit", (e) => {
       alert("❌ Ошибка: " + err.message);
     });
   }
+});
+
+// === Поиск друга по ID ===
+searchFriendBtn.addEventListener("click", async () => {
+  const searchId = friendSearchInput.value.trim();
+  if (!searchId) {
+    alert("Введите ID пользователя");
+    return;
+  }
+
+  const snapshot = await database.ref('profiles').orderByChild('userId').equalTo(searchId).once('value');
+  const data = snapshot.val();
+
+  if (data) {
+    const friendUid = Object.keys(data)[0];
+    showUserProfile(friendUid);
+  } else {
+    alert("Пользователь не найден");
+  }
+});
+
+function showUserProfile(uid) {
+  database.ref(`profiles/${uid}`).once("value").then(snapshot => {
+    const data = snapshot.val();
+    if (data) {
+      profileNickname.textContent = data.nickname;
+      profileAvatar.src = data.avatarUrl;
+      profileDescriptionInput.value = data.description || "";
+      userIdInput.value = data.userId;
+      profileDoneCount.textContent = data.doneGamesCount || 0;
+      editProfileForm.style.display = "none"; // Скрываем форму редактирования
+      alert(`Вы просматриваете профиль: ${data.nickname}`);
+    } else {
+      alert("Ошибка загрузки профиля");
+    }
+  });
+}
+
+// === Вернуться к своему профилю ===
+document.getElementById("backToProfileBtn").addEventListener("click", () => {
+  updateProfileUI();
+  editProfileForm.style.display = ""; // Возвращаем форму
 });
