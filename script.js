@@ -515,3 +515,4 @@ document.addEventListener("click", (e) => {
     closeSidebar();
   }
 });
+
