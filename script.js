@@ -516,7 +516,7 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// DOM Elements для профиля
+// === DOM Elements для профиля ===
 const profileSection = document.getElementById("profileSection");
 const profileNickname = document.getElementById("profileNickname");
 const profileAvatar = document.getElementById("profileAvatar");
