@@ -543,3 +543,18 @@ footer strong.version-tag {
   transform: scale(1.1);
   color: #fff;
 }
+
+/* === Отступы для меню сверху === */
+
+.sidebar-header {
+  padding-top: 1.5rem; /* Делаем отступ сверху */
+  padding-bottom: 0.5rem;
+}
+
+.sidebar-links {
+  padding-top: 0.5rem; /* Дополнительный отступ перед списком */
+}
+
+.sidebar-links li:first-child a {
+  margin-top: 0.75rem; /* Отступ первой ссылки */
+}
