@@ -516,7 +516,7 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// DOM Elements для профиля
+// === DOM Elements для профиля ===
 const profileSection = document.getElementById("profileSection");
 const profileNickname = document.getElementById("profileNickname");
 const profileAvatar = document.getElementById("profileAvatar");
@@ -526,7 +526,7 @@ const avatarUrlInput = document.getElementById("avatarUrlInput");
 const avatarInput = document.getElementById("avatarInput");
 const editProfileForm = document.getElementById("editProfileForm");
 
-let uploadedAvatarDataURL = null;
+let uploadedAvatarDataURL = null; // Для временного хранения Data URL
 
 // === Обработчик клика по пункту меню "Профиль" ===
 document.querySelector('[href="#profile"]').addEventListener("click", (e) => {
@@ -567,7 +567,7 @@ function updateProfileUI() {
     profileNickname.textContent = nickname;
     profileAvatar.src = avatarUrl;
     nicknameInput.value = nickname;
-    avatarUrlInput.value = profileData.avatarUrl || "";
+    avatarUrlInput.value = profileData.avatarUrl || ""; // Только если есть сохранённая ссылка
     profileDoneCount.textContent = gamesList.filter(g => g.status === "done").length;
   });
 }
@@ -584,7 +584,7 @@ avatarInput.addEventListener("change", (e) => {
     const reader = new FileReader();
     reader.onload = function (event) {
       profileAvatar.src = event.target.result;
-      uploadedAvatarDataURL = event.target.result;
+      uploadedAvatarDataURL = event.target.result; // Сохраняем Data URL
     };
     reader.readAsDataURL(file);
   }
@@ -611,8 +611,8 @@ editProfileForm.addEventListener("submit", (e) => {
       displayName: newNick,
       photoURL: newAvatar
     }).then(() => {
-      // Сохраняем в профиль
-      database.ref(`profiles/${currentUser.uid}`).update({
+      // Сохраняем в Firebase Realtime Database
+      database.ref(`profiles/${currentUser.uid}`).set({
         nickname: newNick,
         avatarUrl: newAvatar
       });
