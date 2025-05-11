@@ -464,61 +464,6 @@ footer strong.version-tag {
   z-index: 9997;
 }
 
-/* === Боковое меню === */
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: -300px; /* Скрыто за экраном */
-  width: 300px;
-  height: 100%;
-  background: var(--card-bg);
-  box-shadow: 2px 0 10px rgba(0,0,0,0.5);
-  padding: 1rem;
-  z-index: 9996;
-  transition: left 0.3s ease;
-}
-.sidebar.open {
-  left: 0;
-}
-
-.sidebar-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.menu-close {
-  font-size: 1.5rem;
-  background: none;
-  border: none;
-  color: var(--text-color);
-  cursor: pointer;
-}
-.sidebar-section {
-  margin-bottom: 1.5rem;
-}
-.leaderboard-list {
-  list-style: none;
-  padding-left: 0;
-}
-.leaderboard-list li {
-  padding: 0.4rem;
-  border-bottom: 1px solid var(--border-color);
-}
-.leaderboard-list li:last-child {
-  border-bottom: none;
-}
-.sign-out-btn {
-  background: #e74c3c;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  cursor: pointer;
-}
-.sign-out-btn:hover {
-  background: #c0392b;
-}
-
 /* === Сайдбар меню === */
 .sidebar {
   position: fixed;
