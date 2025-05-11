@@ -518,15 +518,18 @@ document.addEventListener("click", (e) => {
 
 // DOM Elements для профиля
 const profileSection = document.getElementById("profileSection");
-const editProfileBtn = document.getElementById("editProfileBtn");
 const profileNickname = document.getElementById("profileNickname");
 const profileAvatar = document.getElementById("profileAvatar");
 const profileDoneCount = document.getElementById("profileDoneCount");
+const nicknameInput = document.getElementById("nicknameInput");
+const avatarUrlInput = document.getElementById("avatarUrlInput");
+const avatarInput = document.getElementById("avatarInput");
+const editProfileForm = document.getElementById("editProfileForm");
 
 // === Обработчик клика по пункту меню "Профиль" ===
 document.querySelector('[href="#profile"]').addEventListener("click", (e) => {
   e.preventDefault();
-  closeSidebar(); // Закрываем боковое меню
+  closeSidebar(); // Убедись, что эта функция объявлена
 
   // Скрываем все разделы
   document.querySelectorAll(".cards, .add-game, .search-filter, .backup-section").forEach(el => {
@@ -554,19 +557,49 @@ function updateProfileUI() {
 
     profileNickname.textContent = nickname;
     profileAvatar.src = avatarUrl;
+    nicknameInput.value = nickname;
+    avatarUrlInput.value = avatarUrl;
     profileDoneCount.textContent = gamesList.filter(g => g.status === "done").length;
   });
 }
 
-// === Обработчик изменения ника и аватара ===
-editProfileBtn.addEventListener("click", () => {
-  const newNick = prompt("Введите ваш новый никнейм:", profileNickname.textContent);
-  const newAvatar = prompt("Введите ссылку на аватар (оставьте пустым для дефолта):", profileAvatar.src);
+// === Клик по аватару — открывает выбор файла ===
+profileAvatar.addEventListener("click", () => {
+  avatarInput.click();
+});
 
-  if (newNick && currentUser) {
+// === Предпросмотр выбранного аватара ===
+avatarInput.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (file && file.type.startsWith("image/")) {
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      profileAvatar.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// === Сохранение изменений профиля ===
+editProfileForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const newNick = nicknameInput.value.trim();
+  let newAvatar = avatarUrlInput.value.trim();
+
+  if (!newNick) {
+    alert("Введите никнейм!");
+    return;
+  }
+
+  if (!newAvatar) {
+    newAvatar = "https://i.pravatar.cc/150?img=1 "; // дефолтный аватар
+  }
+
+  if (currentUser && newNick) {
     firebase.auth().currentUser.updateProfile({
       displayName: newNick,
-      photoURL: newAvatar || "https://i.pravatar.cc/150?img=1 "
+      photoURL: newAvatar
     }).then(() => {
       alert("✅ Профиль успешно обновлён!");
       updateProfileUI();
