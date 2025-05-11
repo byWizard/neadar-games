@@ -516,26 +516,36 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// === DOM Elements для профиля ===
+// DOM Elements для профиля
 const profileSection = document.getElementById("profileSection");
 const profileNickname = document.getElementById("profileNickname");
+const profileUserId = document.getElementById("profileUserId");
+const profileUserIdSpan = document.getElementById("profileUserId")?.querySelector("span");
+const copyUserIdBtn = document.querySelector(".copy-btn");
 const profileAvatar = document.getElementById("profileAvatar");
 const profileDoneCount = document.getElementById("profileDoneCount");
 const nicknameInput = document.getElementById("nicknameInput");
 const avatarUrlInput = document.getElementById("avatarUrlInput");
 const avatarInput = document.getElementById("avatarInput");
-const editProfileForm = document.getElementById("editProfileForm");
-const userIdInput = document.getElementById("userIdInput");
 const profileDescriptionInput = document.getElementById("profileDescriptionInput");
-const friendSearchInput = document.getElementById("friendSearchInput");
-const searchFriendBtn = document.getElementById("searchFriendBtn");
+const editProfileForm = document.getElementById("editProfileForm");
 
-let uploadedAvatarDataURL = null; // Для временного хранения Data URL
+let uploadedAvatarDataURL = null;
+
+// === Генерация числового ID на основе UID Firebase ===
+function generateNumericId(uid) {
+  // Берём хэш от UID и делаем его положительным
+  let hash = 0;
+  for (let i = 0; i < uid.length; i++) {
+    hash = ((hash << 5) - hash + uid.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash).toString().slice(0, 7); // 7-значный числовой ID
+}
 
 // === Обработчик клика по пункту меню "Профиль" ===
 document.querySelector('[href="#profile"]').addEventListener("click", (e) => {
   e.preventDefault();
-  closeSidebar(); // Убедись, что эта функция объявлена
+  closeSidebar();
 
   // Скрываем все разделы
   document.querySelectorAll(".cards, .add-game, .search-filter, .backup-section").forEach(el => {
@@ -573,7 +583,11 @@ function updateProfileUI() {
     nicknameInput.value = nickname;
     avatarUrlInput.value = profileData.avatarUrl || "";
     profileDescriptionInput.value = profileData.description || "";
-    userIdInput.value = profileData.userId || currentUser.uid;
+
+    // Генерируем числовой ID
+    const numericId = generateNumericId(currentUser.uid);
+    if (profileUserIdSpan) profileUserIdSpan.textContent = numericId;
+
     profileDoneCount.textContent = gamesList.filter(g => g.status === "done").length;
   });
 }
@@ -590,19 +604,18 @@ avatarInput.addEventListener("change", (e) => {
     const reader = new FileReader();
     reader.onload = function (event) {
       profileAvatar.src = event.target.result;
-      uploadedAvatarDataURL = event.target.result; // Сохраняем Data URL
+      uploadedAvatarDataURL = event.target.result;
     };
     reader.readAsDataURL(file);
   }
 });
 
-// === Сохранение изменений профиля в Firebase ===
+// === Сохранение изменений профиля ===
 editProfileForm.addEventListener("submit", (e) => {
   e.preventDefault();
 
   const newNick = nicknameInput.value.trim();
   let newAvatar = uploadedAvatarDataURL || avatarUrlInput.value.trim();
-  const newUserId = userIdInput.value.trim() || currentUser.uid;
   const newDescription = profileDescriptionInput.value.trim();
 
   if (!newNick) {
@@ -624,7 +637,7 @@ editProfileForm.addEventListener("submit", (e) => {
         nickname: newNick,
         avatarUrl: newAvatar,
         description: newDescription,
-        userId: newUserId,
+        userId: generateNumericId(currentUser.uid),
         joinedAt: new Date().toISOString()
       });
 
@@ -637,44 +650,19 @@ editProfileForm.addEventListener("submit", (e) => {
   }
 });
 
-// === Поиск друга по ID ===
-searchFriendBtn.addEventListener("click", async () => {
-  const searchId = friendSearchInput.value.trim();
-  if (!searchId) {
-    alert("Введите ID пользователя");
-    return;
-  }
-
-  const snapshot = await database.ref('profiles').orderByChild('userId').equalTo(searchId).once('value');
-  const data = snapshot.val();
-
-  if (data) {
-    const friendUid = Object.keys(data)[0];
-    showUserProfile(friendUid);
-  } else {
-    alert("Пользователь не найден");
-  }
-});
-
-function showUserProfile(uid) {
-  database.ref(`profiles/${uid}`).once("value").then(snapshot => {
-    const data = snapshot.val();
-    if (data) {
-      profileNickname.textContent = data.nickname;
-      profileAvatar.src = data.avatarUrl;
-      profileDescriptionInput.value = data.description || "";
-      userIdInput.value = data.userId;
-      profileDoneCount.textContent = data.doneGamesCount || 0;
-      editProfileForm.style.display = "none"; // Скрываем форму редактирования
-      alert(`Вы просматриваете профиль: ${data.nickname}`);
-    } else {
-      alert("Ошибка загрузки профиля");
-    }
+// === Копирование ID в буфер обмена ===
+if (copyUserIdBtn) {
+  copyUserIdBtn.addEventListener("click", () => {
+    const userId = profileUserIdSpan.textContent;
+    navigator.clipboard.writeText(userId).then(() => {
+      copyUserIdBtn.title = "Скопировано!";
+      copyUserIdBtn.textContent = "✅";
+      setTimeout(() => {
+        copyUserIdBtn.textContent = "📋";
+        copyUserIdBtn.title = "Нажмите, чтобы скопировать";
+      }, 1000);
+    }).catch(() => {
+      alert("Не удалось скопировать ID");
+    });
   });
 }
-
-// === Вернуться к своему профилю ===
-document.getElementById("backToProfileBtn").addEventListener("click", () => {
-  updateProfileUI();
-  editProfileForm.style.display = ""; // Возвращаем форму
-});
