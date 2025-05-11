@@ -516,3 +516,62 @@ document.addEventListener("click", (e) => {
   }
 });
 
+// DOM Elements для профиля
+const profileSection = document.getElementById("profileSection");
+const editProfileBtn = document.getElementById("editProfileBtn");
+const profileNickname = document.getElementById("profileNickname");
+const profileAvatar = document.getElementById("profileAvatar");
+const profileDoneCount = document.getElementById("profileDoneCount");
+
+// === Обработчик клика по пункту меню "Профиль" ===
+document.querySelector('[href="#profile"]').addEventListener("click", (e) => {
+  e.preventDefault();
+  closeSidebar(); // Закрываем боковое меню
+
+  // Скрываем все разделы
+  document.querySelectorAll(".cards, .add-game, .search-filter, .backup-section").forEach(el => {
+    el.classList.add("hidden");
+  });
+
+  // Показываем профиль
+  profileSection.classList.remove("hidden");
+
+  // Обновляем данные профиля
+  updateProfileUI();
+});
+
+// === Обновление UI профиля ===
+function updateProfileUI() {
+  if (!currentUser) return;
+
+  const userRef = database.ref(`users/${currentUser.uid}`);
+  userRef.once("value").then(snapshot => {
+    const data = snapshot.val() || {};
+    const gamesList = data.games || [];
+
+    const nickname = currentUser.displayName || currentUser.email || "Без ника";
+    const avatarUrl = currentUser.photoURL || "https://i.pravatar.cc/150?img=1 ";
+
+    profileNickname.textContent = nickname;
+    profileAvatar.src = avatarUrl;
+    profileDoneCount.textContent = gamesList.filter(g => g.status === "done").length;
+  });
+}
+
+// === Обработчик изменения ника и аватара ===
+editProfileBtn.addEventListener("click", () => {
+  const newNick = prompt("Введите ваш новый никнейм:", profileNickname.textContent);
+  const newAvatar = prompt("Введите ссылку на аватар (оставьте пустым для дефолта):", profileAvatar.src);
+
+  if (newNick && currentUser) {
+    firebase.auth().currentUser.updateProfile({
+      displayName: newNick,
+      photoURL: newAvatar || "https://i.pravatar.cc/150?img=1 "
+    }).then(() => {
+      alert("✅ Профиль успешно обновлён!");
+      updateProfileUI();
+    }).catch(err => {
+      alert("❌ Ошибка: " + err.message);
+    });
+  }
+});
