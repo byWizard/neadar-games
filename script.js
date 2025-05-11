@@ -516,7 +516,7 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// === DOM Elements для профиля ===
+// DOM Elements для профиля
 const profileSection = document.getElementById("profileSection");
 const profileNickname = document.getElementById("profileNickname");
 const profileAvatar = document.getElementById("profileAvatar");
@@ -525,6 +525,8 @@ const nicknameInput = document.getElementById("nicknameInput");
 const avatarUrlInput = document.getElementById("avatarUrlInput");
 const avatarInput = document.getElementById("avatarInput");
 const editProfileForm = document.getElementById("editProfileForm");
+
+let uploadedAvatarDataURL = null;
 
 // === Обработчик клика по пункту меню "Профиль" ===
 document.querySelector('[href="#profile"]').addEventListener("click", (e) => {
@@ -543,22 +545,29 @@ document.querySelector('[href="#profile"]').addEventListener("click", (e) => {
   updateProfileUI();
 });
 
-// === Обновление UI профиля ===
+// === Обновление UI профиля из Firebase ===
 function updateProfileUI() {
   if (!currentUser) return;
 
   const userRef = database.ref(`users/${currentUser.uid}`);
-  userRef.once("value").then(snapshot => {
-    const data = snapshot.val() || {};
-    const gamesList = data.games || [];
+  const profileRef = database.ref(`profiles/${currentUser.uid}`);
 
-    const nickname = currentUser.displayName || currentUser.email || "Без ника";
-    const avatarUrl = currentUser.photoURL || "https://i.pravatar.cc/150?img=1 ";
+  Promise.all([
+    userRef.once("value"),
+    profileRef.once("value")
+  ]).then(([userSnapshot, profileSnapshot]) => {
+    const userData = userSnapshot.val() || {};
+    const profileData = profileSnapshot.val() || {};
+
+    const gamesList = userData.games || [];
+
+    const nickname = profileData.nickname || currentUser.displayName || currentUser.email || "Без ника";
+    const avatarUrl = profileData.avatarUrl || currentUser.photoURL || "https://i.pravatar.cc/150?img=1 ";
 
     profileNickname.textContent = nickname;
     profileAvatar.src = avatarUrl;
     nicknameInput.value = nickname;
-    avatarUrlInput.value = avatarUrl;
+    avatarUrlInput.value = profileData.avatarUrl || "";
     profileDoneCount.textContent = gamesList.filter(g => g.status === "done").length;
   });
 }
@@ -575,17 +584,18 @@ avatarInput.addEventListener("change", (e) => {
     const reader = new FileReader();
     reader.onload = function (event) {
       profileAvatar.src = event.target.result;
+      uploadedAvatarDataURL = event.target.result;
     };
     reader.readAsDataURL(file);
   }
 });
 
-// === Сохранение изменений профиля ===
+// === Сохранение изменений профиля в Firebase ===
 editProfileForm.addEventListener("submit", (e) => {
   e.preventDefault();
 
   const newNick = nicknameInput.value.trim();
-  let newAvatar = avatarUrlInput.value.trim();
+  let newAvatar = uploadedAvatarDataURL || avatarUrlInput.value.trim();
 
   if (!newNick) {
     alert("Введите никнейм!");
@@ -601,7 +611,14 @@ editProfileForm.addEventListener("submit", (e) => {
       displayName: newNick,
       photoURL: newAvatar
     }).then(() => {
+      // Сохраняем в профиль
+      database.ref(`profiles/${currentUser.uid}`).update({
+        nickname: newNick,
+        avatarUrl: newAvatar
+      });
+
       alert("✅ Профиль успешно обновлён!");
+      uploadedAvatarDataURL = null;
       updateProfileUI();
     }).catch(err => {
       alert("❌ Ошибка: " + err.message);
