@@ -483,3 +483,22 @@ function updateParticleColor(theme) {
 // === Инициализация ===
 createParticles();
 animateParticles();
+
+// === Боковое меню ===
+const menuToggle = document.getElementById("menuToggle");
+const sidebar = document.getElementById("sidebar");
+const menuClose = document.getElementById("menuClose");
+
+menuToggle.addEventListener("click", () => {
+  sidebar.classList.add("open");
+});
+
+menuClose.addEventListener("click", () => {
+  sidebar.classList.remove("open");
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    sidebar.classList.remove("open");
+  }
+});
