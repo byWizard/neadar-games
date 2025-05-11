@@ -648,3 +648,19 @@ footer strong.version-tag {
 #saveProfileBtn:hover {
   background-color: #357ABD;
 }
+
+.profile-input {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  margin-top: 0.3rem;
+  font-size: 1rem;
+}
+
+.profile-input[disabled] {
+  background-color: var(--card-bg);
+  opacity: 0.7;
+}
