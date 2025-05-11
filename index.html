@@ -97,21 +97,29 @@
 <!-- === Страница профиля === -->
 <section id="profileSection" class="profile-section hidden">
   <div class="profile-card">
+    <!-- Аватар -->
     <img id="profileAvatar" src="" alt="Аватар" class="profile-avatar clickable" title="Нажмите, чтобы изменить аватар">
-    <h2 id="profileNickname">Загрузка...</h2>
-    <p>Пройдено игр: <strong id="profileDoneCount">0</strong></p>
-    <p id="profileDescription">Добавьте описание профиля</p>
 
-    <button id="editProfileBtn">✏️ Редактировать профиль</button>
+    <!-- Превью загруженного изображения -->
+    <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+    
+    <h2 id="profileNickname">Загрузка...</h2>
+    
+    <!-- Форма редактирования -->
+    <form id="editProfileForm" class="edit-profile-form">
+      <label class="input-label">
+        Никнейм:
+        <input type="text" id="nicknameInput" class="profile-input" required>
+      </label>
+
+      <label class="input-label">
+        Аватар (ссылка или загрузите файл):
+        <input type="url" id="avatarUrlInput" class="profile-input" placeholder="https://...">
+      </label>
+
+      <button type="submit" id="saveProfileBtn">💾 Сохранить</button>
+    </form>
+
+    <p>Пройдено игр: <strong id="profileDoneCount">0</strong></p>
   </div>
 </section>
-
-<footer>
-  <p>© 2025 Neadar | Хостится на GitHub Pages</p>
-  <p><a href="https://t.me/neadar" target="_blank">Telegram: @neadar</a></p>
-  <p>Версия: <strong class="version-tag">v1.91 Stable</strong> | Обновлено: 06.05.2025</p>
-</footer>
-
-  <script src="script.js"></script>
-</body>
-</html>
