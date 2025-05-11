@@ -530,7 +530,7 @@ footer strong.version-tag {
   position: absolute;
   top: 1rem;
   left: 1rem;
-  z-index: 1002; /* Должна быть выше остального контента */
+  z-index: 1001; /* Должна быть выше остального контента */
   background: none;
   border: none;
   color: var(--accent-color);
