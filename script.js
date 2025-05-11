@@ -489,16 +489,29 @@ const menuToggle = document.getElementById("menuToggle");
 const sidebar = document.getElementById("sidebar");
 const menuClose = document.getElementById("menuClose");
 
-menuToggle.addEventListener("click", () => {
+function openSidebar() {
   sidebar.classList.add("open");
-});
+  menuToggle.style.zIndex = "1000"; /* Можно понизить, если нужно скрыть за меню */
+}
 
-menuClose.addEventListener("click", () => {
+function closeSidebar() {
   sidebar.classList.remove("open");
-});
+  menuToggle.style.zIndex = "1002"; /* Вернуть обратно поверх */
+}
+
+menuToggle.addEventListener("click", openSidebar);
+
+menuClose.addEventListener("click", closeSidebar);
 
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
-    sidebar.classList.remove("open");
+    closeSidebar();
+  }
+});
+
+// Закрытие по клику вне меню
+document.addEventListener("click", (e) => {
+  if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+    closeSidebar();
   }
 });
