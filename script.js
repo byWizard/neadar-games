@@ -18,16 +18,18 @@ const authRequiredLoginBtn = document.getElementById("authRequiredLoginBtn");
 let games = [];
 let currentUser = null;
 let isLoadingAuth = true;
+
 // === Firebase Setup ===
 const firebaseConfig = {
   apiKey: "AIzaSyDhMfbhd7emAXNKDexXxaCxZ0k2DfkRcVg",
   authDomain: "my-games-app-hub.firebaseapp.com",
-  databaseURL: "https://my-games-app-hub-default-rtdb.firebaseio.com",
+  databaseURL: "https://my-games-app-hub-default-rtdb.firebaseio.com ",
   projectId: "my-games-app-hub",
   storageBucket: "my-games-app-hub.appspot.com",
   messagingSenderId: "251367004030",
   appId: "1:251367004030:web:2b1be1b1c76ee80c0d052f"
 };
+
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const database = firebase.database();
@@ -63,7 +65,7 @@ async function searchGame(query) {
   if (cached) return cached;
   try {
     const response = await fetch(
-      `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(query)}`
+      `https://api.rawg.io/api/games?key= ${RAWG_API_KEY}&search=${encodeURIComponent(query)}`
     );
     const data = await response.json();
     const results = data.results || [];
@@ -77,7 +79,7 @@ async function searchGame(query) {
 
 // === Обработчик поиска по играм ===
 let debounceTimer;
-gameSearchInput.addEventListener("input", e => {
+gameSearchInput.addEventListener("input", (e) => {
   const query = e.target.value.trim();
   if (query.length < 2) {
     searchResults.innerHTML = "";
@@ -97,14 +99,14 @@ function renderSearchResults(results) {
     searchResults.innerHTML = "<li>Ничего не найдено</li>";
     return;
   }
-  results.slice(0, 5).forEach(game => {
+  results.slice(0, 5).forEach((game) => {
     const li = document.createElement("li");
     li.innerHTML = `
       <div style="display: flex; align-items: center;">
         <img src="${game.background_image}" alt="${game.name}" width="40" style="margin-right: 10px; border-radius: 4px;">
         <div>
           <strong>${game.name}</strong><br>
-          <small>${game.short_description || 'Описание отсутствует'}</small>
+          <small>${game.short_description || "Описание отсутствует"}</small>
         </div>
       </div>
     `;
@@ -126,10 +128,12 @@ function setTheme(theme) {
   localStorage.setItem("theme", theme);
   updateParticleColor(theme);
 }
+
 themeToggle.addEventListener("click", () => {
   const currentTheme = localStorage.getItem("theme") || "dark";
   setTheme(currentTheme === "dark" ? "light" : "dark");
 });
+
 window.addEventListener("DOMContentLoaded", () => {
   const savedTheme = localStorage.getItem("theme") || "dark";
   setTheme(savedTheme);
@@ -143,12 +147,13 @@ authBtn.addEventListener("click", () => {
     });
   } else {
     const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider).catch(err => alert("Ошибка входа: " + err.message));
+    auth.signInWithPopup(provider).catch((err) => alert("Ошибка входа: " + err.message));
   }
 });
+
 authRequiredLoginBtn.addEventListener("click", () => {
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).catch(err => alert("Ошибка входа: " + err.message));
+  auth.signInWithPopup(provider).catch((err) => alert("Ошибка входа: " + err.message));
 });
 
 // === Слушатель состояния пользователя ===
@@ -158,16 +163,13 @@ auth.onAuthStateChanged((user) => {
     currentUser = user;
     authBtn.textContent = "Выйти";
     userStatus.textContent = `Вы вошли как ${user.displayName}`;
-
     // Загружаем данные только из Firebase
-    database.ref(`users/${currentUser.uid}`).once("value").then(snapshot => {
+    database.ref(`users/${currentUser.uid}`).once("value").then((snapshot) => {
       const data = snapshot.val();
       games = data?.games || []; // ❗ Не используем localStorage, если пользователь залогинен
-
       applyFilters();
       toggleAuthUI(false);
     }).catch(console.error);
-
   } else {
     currentUser = null;
     authBtn.textContent = "Войти через Google";
@@ -193,7 +195,7 @@ function saveData() {
 }
 
 // === Добавление игры ===
-addGameForm.addEventListener("submit", e => {
+addGameForm.addEventListener("submit", (e) => {
   e.preventDefault();
   games.push({
     id: Date.now(),
@@ -201,7 +203,7 @@ addGameForm.addEventListener("submit", e => {
     image: gameImage.value.trim(),
     description: gameDescription.value.trim(),
     status: "want",
-    rating: 0
+    rating: 0,
   });
   saveData();
   applyFilters();
@@ -212,24 +214,30 @@ addGameForm.addEventListener("submit", e => {
 document.addEventListener("DOMContentLoaded", () => {
   searchInput.addEventListener("input", applyFilters);
   filterSelect.addEventListener("change", applyFilters);
+
+  // === Обработчик клика по пункту меню "Главная" ===
+  document.querySelector('[href="#home"]').addEventListener("click", (e) => {
+    e.preventDefault();
+    closeSidebar(); // Убедись, что эта функция определена
+    showMainPage();
+  });
 });
 
 function applyFilters() {
   const term = searchInput.value.toLowerCase();
   const filter = filterSelect.value;
-  const filtered = games.filter(g =>
-    g.title.toLowerCase().includes(term) &&
-    (filter === "all" || g.status === filter)
+  const filtered = games.filter(
+    (g) =>
+      g.title.toLowerCase().includes(term) &&
+      (filter === "all" || g.status === filter)
   );
   renderFilteredGames(filtered);
 }
 
 function renderFilteredGames(filteredGames) {
   const existingCards = [...cardsContainer.querySelectorAll(".card")];
-
   filteredGames.forEach((game, index) => {
-    let card = existingCards.find(c => c.dataset.id == game.id);
-
+    let card = existingCards.find((c) => c.dataset.id == game.id);
     if (!card) {
       card = document.createElement("div");
       card.className = "card";
@@ -237,13 +245,14 @@ function renderFilteredGames(filteredGames) {
       card.innerHTML = `
         <img src="${game.image}" alt="${game.title}">
         <h2>${game.title}</h2>
-        <span class="status ${game.status}">${game.status === "done" ? "Пройдена" : "Хочу пройти"}</span>
+        <span class="status ${
+          game.status
+        }">${game.status === "done" ? "Пройдена" : "Хочу пройти"}</span>
         <div class="stars" data-rating="${game.rating || 0}"></div>
         <small>Добавлено</small>
         <textarea class="description">${game.description || ""}</textarea>
         <button class="delete-btn">🗑️ Удалить</button>
       `;
-
       const starsEl = card.querySelector(".stars");
       for (let i = 1; i <= 5; i++) {
         const star = document.createElement("span");
@@ -251,11 +260,10 @@ function renderFilteredGames(filteredGames) {
         star.dataset.rating = i;
         starsEl.appendChild(star);
       }
-
       updateStarDisplay(starsEl, game.rating || 0);
 
       // Звёзды
-      starsEl.addEventListener("click", e => {
+      starsEl.addEventListener("click", (e) => {
         if (e.target.tagName === "SPAN") {
           game.rating = parseInt(e.target.dataset.rating);
           updateStarDisplay(starsEl, game.rating);
@@ -264,13 +272,13 @@ function renderFilteredGames(filteredGames) {
       });
 
       // Статус
-const statusEl = card.querySelector(".status");
-statusEl.addEventListener("click", () => {
-  game.status = game.status === "done" ? "want" : "done";
-  saveData();
-  updateCard(card, game);
-  updateStats(); // ✅ Добавили обновление счётчика
-});
+      const statusEl = card.querySelector(".status");
+      statusEl.addEventListener("click", () => {
+        game.status = game.status === "done" ? "want" : "done";
+        saveData();
+        updateCard(card, game);
+        updateStats();
+      });
 
       // Описание
       const descEl = card.querySelector(".description");
@@ -280,13 +288,13 @@ statusEl.addEventListener("click", () => {
       });
 
       // Удаление
-const deleteBtn = card.querySelector(".delete-btn");
-deleteBtn.addEventListener("click", () => {
-  games.splice(index, 1);
-  saveData();
-  applyFilters();
-  updateStats(); // ✅ Добавили обновление счётчика
-});
+      const deleteBtn = card.querySelector(".delete-btn");
+      deleteBtn.addEventListener("click", () => {
+        games.splice(index, 1);
+        saveData();
+        applyFilters();
+        updateStats();
+      });
 
       cardsContainer.appendChild(card);
     } else {
@@ -295,8 +303,8 @@ deleteBtn.addEventListener("click", () => {
   });
 
   // Удаляем карточки, которых нет в новых данных
-  existingCards.forEach(card => {
-    if (!filteredGames.some(g => g.id == card.dataset.id)) {
+  existingCards.forEach((card) => {
+    if (!filteredGames.some((g) => g.id == card.dataset.id)) {
       card.remove();
     }
   });
@@ -307,11 +315,10 @@ deleteBtn.addEventListener("click", () => {
 function updateCard(card, game) {
   const statusEl = card.querySelector(".status");
   statusEl.className = `status ${game.status}`;
-  statusEl.textContent = game.status === "done" ? "Пройдена" : "Хочу пройти";
-
+  statusEl.textContent =
+    game.status === "done" ? "Пройдена" : "Хочу пройти";
   const starsEl = card.querySelector(".stars");
   updateStarDisplay(starsEl, game.rating || 0);
-
   const descEl = card.querySelector(".description");
   descEl.value = game.description || "";
 }
@@ -323,12 +330,14 @@ function updateStarDisplay(container, rating) {
 }
 
 function updateStats() {
-  doneCountEl.textContent = games.filter(g => g.status === "done").length;
+  doneCountEl.textContent = games.filter((g) => g.status === "done").length;
 }
 
 // ==== ЭКСПОРТ / ИМПОРТ ====
 document.getElementById("exportBtn").addEventListener("click", () => {
-  const blob = new Blob([JSON.stringify(games, null, 2)], { type: "application/json" });
+  const blob = new Blob([JSON.stringify(games, null, 2)], {
+    type: "application/json",
+  });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -337,11 +346,11 @@ document.getElementById("exportBtn").addEventListener("click", () => {
   URL.revokeObjectURL(url);
 });
 
-document.getElementById("importInput").addEventListener("change", e => {
+document.getElementById("importInput").addEventListener("change", (e) => {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = event => {
+  reader.onload = (event) => {
     try {
       games = JSON.parse(event.target.result);
       saveData();
@@ -354,10 +363,9 @@ document.getElementById("importInput").addEventListener("change", e => {
   reader.readAsText(file);
 });
 
-// === Частицы через Canvas с реакцией на мышь и цветом под тему ===
+// === Частицы фона ===
 const canvas = document.getElementById("particles");
 const ctx = canvas.getContext("2d");
-
 let particles = [];
 let width, height;
 let mouseX = window.innerWidth / 2;
@@ -369,8 +377,7 @@ function resizeCanvas() {
 }
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
-
-window.addEventListener("mousemove", e => {
+window.addEventListener("mousemove", (e) => {
   mouseX = e.clientX;
   mouseY = e.clientY;
 });
@@ -379,7 +386,6 @@ class Particle {
   constructor() {
     this.reset();
   }
-
   reset() {
     this.x = Math.random() * width;
     this.y = Math.random() * height;
@@ -389,14 +395,12 @@ class Particle {
     this.alpha = Math.random() * 0.5 + 0.3;
     this.color = currentParticleColor;
   }
-
   draw() {
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
     ctx.fillStyle = `rgba(${this.color}, ${this.alpha})`;
     ctx.fill();
   }
-
   update() {
     const dx = this.x - mouseX;
     const dy = this.y - mouseY;
@@ -423,14 +427,14 @@ let currentParticleColor = "255, 255, 255";
 
 function setParticleColor(color) {
   currentParticleColor = color;
-  particles.forEach(p => {
+  particles.forEach((p) => {
     p.color = color;
   });
 }
 
 function animateParticles() {
   ctx.clearRect(0, 0, width, height);
-  particles.forEach(p => {
+  particles.forEach((p) => {
     p.update();
     p.draw();
   });
@@ -480,189 +484,28 @@ function updateParticleColor(theme) {
   }
 }
 
-// === Инициализация ===
+// === Инициализация частиц ===
 createParticles();
 animateParticles();
 
-// === Боковое меню ===
-const menuToggle = document.getElementById("menuToggle");
-const sidebar = document.getElementById("sidebar");
-const menuClose = document.getElementById("menuClose");
-
-function openSidebar() {
-  sidebar.classList.add("open");
-  menuToggle.style.zIndex = "1000"; /* Можно понизить, если нужно скрыть за меню */
-}
-
-function closeSidebar() {
-  sidebar.classList.remove("open");
-  menuToggle.style.zIndex = "1002"; /* Вернуть обратно поверх */
-}
-
-menuToggle.addEventListener("click", openSidebar);
-
-menuClose.addEventListener("click", closeSidebar);
-
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    closeSidebar();
-  }
-});
-
-// Закрытие по клику вне меню
-document.addEventListener("click", (e) => {
-  if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
-    closeSidebar();
-  }
-});
-
-// DOM Elements для профиля
-const profileSection = document.getElementById("profileSection");
-const profileNickname = document.getElementById("profileNickname");
-const profileUserId = document.getElementById("profileUserId");
-const profileUserIdSpan = document.getElementById("profileUserId")?.querySelector("span");
-const copyUserIdBtn = document.querySelector(".copy-btn");
-const profileAvatar = document.getElementById("profileAvatar");
-const profileDoneCount = document.getElementById("profileDoneCount");
-const nicknameInput = document.getElementById("nicknameInput");
-const avatarUrlInput = document.getElementById("avatarUrlInput");
-const avatarInput = document.getElementById("avatarInput");
-const profileDescriptionInput = document.getElementById("profileDescriptionInput");
-const editProfileForm = document.getElementById("editProfileForm");
-
-let uploadedAvatarDataURL = null;
-
-// === Генерация числового ID на основе UID Firebase ===
-function generateNumericId(uid) {
-  // Берём хэш от UID и делаем его положительным
-  let hash = 0;
-  for (let i = 0; i < uid.length; i++) {
-    hash = ((hash << 5) - hash + uid.charCodeAt(i)) | 0;
-  }
-  return Math.abs(hash).toString().slice(0, 7); // 7-значный числовой ID
-}
-
-// === Обработчик клика по пункту меню "Профиль" ===
-document.querySelector('[href="#profile"]').addEventListener("click", (e) => {
-  e.preventDefault();
-  closeSidebar();
-
+// === Функция показа главной страницы ===
+function showMainPage() {
   // Скрываем все разделы
-  document.querySelectorAll(".cards, .add-game, .search-filter, .backup-section").forEach(el => {
+  document.querySelectorAll(".profile-section, .backup-section").forEach((el) => {
     el.classList.add("hidden");
   });
 
-  // Показываем профиль
-  profileSection.classList.remove("hidden");
+  // Показываем основные элементы
+  document.querySelector(".search-filter").classList.remove("hidden");
+  document.querySelector(".stats").classList.remove("hidden");
+  document.querySelector(".add-game").classList.remove("hidden");
+  document.querySelector(".cards").classList.remove("hidden");
 
-  // Обновляем данные профиля
-  updateProfileUI();
-});
-
-// === Обновление UI профиля из Firebase ===
-function updateProfileUI() {
-  if (!currentUser) return;
-
-  const userRef = database.ref(`users/${currentUser.uid}`);
-  const profileRef = database.ref(`profiles/${currentUser.uid}`);
-
-  Promise.all([
-    userRef.once("value"),
-    profileRef.once("value")
-  ]).then(([userSnapshot, profileSnapshot]) => {
-    const userData = userSnapshot.val() || {};
-    const profileData = profileSnapshot.val() || {};
-
-    const gamesList = userData.games || [];
-
-    const nickname = profileData.nickname || currentUser.displayName || currentUser.email || "Без ника";
-    const avatarUrl = profileData.avatarUrl || currentUser.photoURL || "https://i.pravatar.cc/150?img=1 ";
-
-    profileNickname.textContent = nickname;
-    profileAvatar.src = avatarUrl;
-    nicknameInput.value = nickname;
-    avatarUrlInput.value = profileData.avatarUrl || "";
-    profileDescriptionInput.value = profileData.description || "";
-
-    // Генерируем числовой ID
-    const numericId = generateNumericId(currentUser.uid);
-    if (profileUserIdSpan) profileUserIdSpan.textContent = numericId;
-
-    profileDoneCount.textContent = gamesList.filter(g => g.status === "done").length;
-  });
+  applyFilters();
 }
 
-// === Клик по аватару — открывает выбор файла ===
-profileAvatar.addEventListener("click", () => {
-  avatarInput.click();
-});
-
-// === Предпросмотр выбранного аватара ===
-avatarInput.addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if (file && file.type.startsWith("image/")) {
-    const reader = new FileReader();
-    reader.onload = function (event) {
-      profileAvatar.src = event.target.result;
-      uploadedAvatarDataURL = event.target.result;
-    };
-    reader.readAsDataURL(file);
-  }
-});
-
-// === Сохранение изменений профиля ===
-editProfileForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-
-  const newNick = nicknameInput.value.trim();
-  let newAvatar = uploadedAvatarDataURL || avatarUrlInput.value.trim();
-  const newDescription = profileDescriptionInput.value.trim();
-
-  if (!newNick) {
-    alert("Введите никнейм!");
-    return;
-  }
-
-  if (!newAvatar) {
-    newAvatar = "https://i.pravatar.cc/150?img=1 "; // дефолтный аватар
-  }
-
-  if (currentUser && newNick) {
-    firebase.auth().currentUser.updateProfile({
-      displayName: newNick,
-      photoURL: newAvatar
-    }).then(() => {
-      // Сохраняем в профиль
-      database.ref(`profiles/${currentUser.uid}`).set({
-        nickname: newNick,
-        avatarUrl: newAvatar,
-        description: newDescription,
-        userId: generateNumericId(currentUser.uid),
-        joinedAt: new Date().toISOString()
-      });
-
-      alert("✅ Профиль успешно обновлён!");
-      uploadedAvatarDataURL = null;
-      updateProfileUI();
-    }).catch(err => {
-      alert("❌ Ошибка: " + err.message);
-    });
-  }
-});
-
-// === Копирование ID в буфер обмена ===
-if (copyUserIdBtn) {
-  copyUserIdBtn.addEventListener("click", () => {
-    const userId = profileUserIdSpan.textContent;
-    navigator.clipboard.writeText(userId).then(() => {
-      copyUserIdBtn.title = "Скопировано!";
-      copyUserIdBtn.textContent = "✅";
-      setTimeout(() => {
-        copyUserIdBtn.textContent = "📋";
-        copyUserIdBtn.title = "Нажмите, чтобы скопировать";
-      }, 1000);
-    }).catch(() => {
-      alert("Не удалось скопировать ID");
-    });
-  });
+// === Закрытие бокового меню (если есть) ===
+function closeSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  if (sidebar) sidebar.classList.remove("open");
 }
