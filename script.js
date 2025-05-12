@@ -18,11 +18,12 @@ const authRequiredLoginBtn = document.getElementById("authRequiredLoginBtn");
 let games = [];
 let currentUser = null;
 let isLoadingAuth = true;
+
 // === Firebase Setup ===
 const firebaseConfig = {
   apiKey: "AIzaSyDhMfbhd7emAXNKDexXxaCxZ0k2DfkRcVg",
   authDomain: "my-games-app-hub.firebaseapp.com",
-  databaseURL: "https://my-games-app-hub-default-rtdb.firebaseio.com",
+  databaseURL: "https://my-games-app-hub-default-rtdb.firebaseio.com ",
   projectId: "my-games-app-hub",
   storageBucket: "my-games-app-hub.appspot.com",
   messagingSenderId: "251367004030",
@@ -39,17 +40,14 @@ const searchCache = loadCacheFromStorage();
 function loadCacheFromStorage() {
   return JSON.parse(localStorage.getItem(CACHE_KEY)) || {};
 }
-
 function saveCacheToStorage() {
   localStorage.setItem(CACHE_KEY, JSON.stringify(searchCache));
 }
-
 function getFromCache(query) {
   const cached = searchCache[query];
   if (cached && Date.now() < cached.expiresAt) return cached.data;
   return null;
 }
-
 function setToCache(query, data, ttl = 3600000) {
   searchCache[query] = { data, expiresAt: Date.now() + ttl };
   saveCacheToStorage();
@@ -57,13 +55,12 @@ function setToCache(query, data, ttl = 3600000) {
 
 // === RAWG API поиск ===
 const RAWG_API_KEY = "48b79844fcc44af7860a5fa89de88ca8";
-
 async function searchGame(query) {
   const cached = getFromCache(query);
   if (cached) return cached;
   try {
     const response = await fetch(
-      `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(query)}`
+      `https://api.rawg.io/api/games?key= ${RAWG_API_KEY}&search=${encodeURIComponent(query)}`
     );
     const data = await response.json();
     const results = data.results || [];
@@ -90,7 +87,6 @@ gameSearchInput.addEventListener("input", e => {
     renderSearchResults(results);
   }, 500);
 });
-
 function renderSearchResults(results) {
   searchResults.innerHTML = "";
   if (results.length === 0) {
@@ -156,30 +152,27 @@ auth.onAuthStateChanged((user) => {
   isLoadingAuth = false;
   if (user) {
     currentUser = user;
+    createProfileIfNotExists(user); // Автоматическое создание профиля
     authBtn.textContent = "Выйти";
     userStatus.textContent = `Вы вошли как ${user.displayName}`;
-
-    // Загружаем данные только из Firebase
     database.ref(`users/${currentUser.uid}`).once("value").then(snapshot => {
       const data = snapshot.val();
-      games = data?.games || []; // ❗ Не используем localStorage, если пользователь залогинен
-
+      games = data?.games || [];
       applyFilters();
       toggleAuthUI(false);
     }).catch(console.error);
-
   } else {
     currentUser = null;
     authBtn.textContent = "Войти через Google";
     userStatus.textContent = "Вы не вошли";
-    games = []; // ❗ При выходе всегда чистим список
+    games = [];
     applyFilters();
     toggleAuthUI(true);
   }
 });
 
 function toggleAuthUI(isVisible) {
-  if (isLoadingAuth) return; // Пока проверяем — не показываем оверлей
+  if (isLoadingAuth) return;
   authOnlyOverlay.style.display = isVisible ? "flex" : "none";
 }
 
@@ -213,7 +206,6 @@ document.addEventListener("DOMContentLoaded", () => {
   searchInput.addEventListener("input", applyFilters);
   filterSelect.addEventListener("change", applyFilters);
 });
-
 function applyFilters() {
   const term = searchInput.value.toLowerCase();
   const filter = filterSelect.value;
@@ -223,13 +215,10 @@ function applyFilters() {
   );
   renderFilteredGames(filtered);
 }
-
 function renderFilteredGames(filteredGames) {
   const existingCards = [...cardsContainer.querySelectorAll(".card")];
-
   filteredGames.forEach((game, index) => {
     let card = existingCards.find(c => c.dataset.id == game.id);
-
     if (!card) {
       card = document.createElement("div");
       card.className = "card";
@@ -243,7 +232,6 @@ function renderFilteredGames(filteredGames) {
         <textarea class="description">${game.description || ""}</textarea>
         <button class="delete-btn">🗑️ Удалить</button>
       `;
-
       const starsEl = card.querySelector(".stars");
       for (let i = 1; i <= 5; i++) {
         const star = document.createElement("span");
@@ -251,10 +239,8 @@ function renderFilteredGames(filteredGames) {
         star.dataset.rating = i;
         starsEl.appendChild(star);
       }
-
       updateStarDisplay(starsEl, game.rating || 0);
 
-      // Звёзды
       starsEl.addEventListener("click", e => {
         if (e.target.tagName === "SPAN") {
           game.rating = parseInt(e.target.dataset.rating);
@@ -263,30 +249,27 @@ function renderFilteredGames(filteredGames) {
         }
       });
 
-      // Статус
-const statusEl = card.querySelector(".status");
-statusEl.addEventListener("click", () => {
-  game.status = game.status === "done" ? "want" : "done";
-  saveData();
-  updateCard(card, game);
-  updateStats(); // ✅ Добавили обновление счётчика
-});
+      const statusEl = card.querySelector(".status");
+      statusEl.addEventListener("click", () => {
+        game.status = game.status === "done" ? "want" : "done";
+        saveData();
+        updateCard(card, game);
+        updateStats();
+      });
 
-      // Описание
       const descEl = card.querySelector(".description");
       descEl.addEventListener("input", () => {
         game.description = descEl.value;
         saveData();
       });
 
-      // Удаление
-const deleteBtn = card.querySelector(".delete-btn");
-deleteBtn.addEventListener("click", () => {
-  games.splice(index, 1);
-  saveData();
-  applyFilters();
-  updateStats(); // ✅ Добавили обновление счётчика
-});
+      const deleteBtn = card.querySelector(".delete-btn");
+      deleteBtn.addEventListener("click", () => {
+        games.splice(index, 1);
+        saveData();
+        applyFilters();
+        updateStats();
+      });
 
       cardsContainer.appendChild(card);
     } else {
@@ -294,7 +277,6 @@ deleteBtn.addEventListener("click", () => {
     }
   });
 
-  // Удаляем карточки, которых нет в новых данных
   existingCards.forEach(card => {
     if (!filteredGames.some(g => g.id == card.dataset.id)) {
       card.remove();
@@ -303,7 +285,6 @@ deleteBtn.addEventListener("click", () => {
 
   updateStats();
 }
-
 function updateCard(card, game) {
   const statusEl = card.querySelector(".status");
   statusEl.className = `status ${game.status}`;
@@ -315,13 +296,11 @@ function updateCard(card, game) {
   const descEl = card.querySelector(".description");
   descEl.value = game.description || "";
 }
-
 function updateStarDisplay(container, rating) {
   container.querySelectorAll("span").forEach((star, idx) => {
     star.classList.toggle("active", idx < rating);
   });
 }
-
 function updateStats() {
   doneCountEl.textContent = games.filter(g => g.status === "done").length;
 }
@@ -336,7 +315,6 @@ document.getElementById("exportBtn").addEventListener("click", () => {
   a.click();
   URL.revokeObjectURL(url);
 });
-
 document.getElementById("importInput").addEventListener("change", e => {
   const file = e.target.files[0];
   if (!file) return;
@@ -357,7 +335,6 @@ document.getElementById("importInput").addEventListener("change", e => {
 // === Частицы через Canvas с реакцией на мышь и цветом под тему ===
 const canvas = document.getElementById("particles");
 const ctx = canvas.getContext("2d");
-
 let particles = [];
 let width, height;
 let mouseX = window.innerWidth / 2;
@@ -369,7 +346,6 @@ function resizeCanvas() {
 }
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
-
 window.addEventListener("mousemove", e => {
   mouseX = e.clientX;
   mouseY = e.clientY;
@@ -379,7 +355,6 @@ class Particle {
   constructor() {
     this.reset();
   }
-
   reset() {
     this.x = Math.random() * width;
     this.y = Math.random() * height;
@@ -389,14 +364,12 @@ class Particle {
     this.alpha = Math.random() * 0.5 + 0.3;
     this.color = currentParticleColor;
   }
-
   draw() {
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
     ctx.fillStyle = `rgba(${this.color}, ${this.alpha})`;
     ctx.fill();
   }
-
   update() {
     const dx = this.x - mouseX;
     const dy = this.y - mouseY;
@@ -418,16 +391,13 @@ function createParticles(num = 190) {
     particles.push(new Particle());
   }
 }
-
 let currentParticleColor = "255, 255, 255";
-
 function setParticleColor(color) {
   currentParticleColor = color;
   particles.forEach(p => {
     p.color = color;
   });
 }
-
 function animateParticles() {
   ctx.clearRect(0, 0, width, height);
   particles.forEach(p => {
@@ -435,7 +405,6 @@ function animateParticles() {
     p.draw();
   });
 
-  // Линии между частицами
   for (let i = 0; i < particles.length; i++) {
     for (let j = i + 1; j < particles.length; j++) {
       const p1 = particles[i];
@@ -454,7 +423,6 @@ function animateParticles() {
     }
   }
 
-  // Линии к курсору
   ctx.strokeStyle = `rgba(${currentParticleColor}, 0.2)`;
   for (let p of particles) {
     const dx = p.x - mouseX;
@@ -470,8 +438,6 @@ function animateParticles() {
 
   requestAnimationFrame(animateParticles);
 }
-
-// === Цвет частиц под тему ===
 function updateParticleColor(theme) {
   if (theme === "dark") {
     setParticleColor("255, 255, 255");
@@ -479,8 +445,6 @@ function updateParticleColor(theme) {
     setParticleColor("50, 50, 50");
   }
 }
-
-// === Инициализация ===
 createParticles();
 animateParticles();
 
@@ -491,104 +455,84 @@ const menuClose = document.getElementById("menuClose");
 
 function openSidebar() {
   sidebar.classList.add("open");
-  menuToggle.style.zIndex = "1000"; /* Можно понизить, если нужно скрыть за меню */
+  menuToggle.style.zIndex = "1000";
 }
-
 function closeSidebar() {
   sidebar.classList.remove("open");
-  menuToggle.style.zIndex = "1002"; /* Вернуть обратно поверх */
+  menuToggle.style.zIndex = "1002";
 }
-
 menuToggle.addEventListener("click", openSidebar);
-
 menuClose.addEventListener("click", closeSidebar);
-
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     closeSidebar();
   }
 });
-
-// Закрытие по клику вне меню
 document.addEventListener("click", (e) => {
   if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
     closeSidebar();
   }
 });
 
-// DOM Elements для профиля
+// === Генерация числового ID на основе UID Firebase ===
+function generateNumericId(uid) {
+  let hash = 0;
+  for (let i = 0; i < uid.length; i++) {
+    hash = ((hash << 5) - hash + uid.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash).toString().slice(0, 7);
+}
+
+// === Создание профиля при первом входе ===
+function createProfileIfNotExists(user) {
+  const profileRef = database.ref(`profiles/${user.uid}`);
+  profileRef.once("value").then(snapshot => {
+    if (!snapshot.exists()) {
+      profileRef.set({
+        nickname: user.displayName || "Пользователь",
+        avatarUrl: user.photoURL || "https://i.pravatar.cc/150?img=1  ",
+        description: "",
+        userId: generateNumericId(user.uid),
+        joinedAt: new Date().toISOString()
+      }).catch(console.error);
+    }
+  });
+}
+
+// === DOM Elements для профиля ===
 const profileSection = document.getElementById("profileSection");
 const profileNickname = document.getElementById("profileNickname");
-const profileUserId = document.getElementById("profileUserId");
-const profileUserIdSpan = document.getElementById("profileUserId")?.querySelector("span");
-const copyUserIdBtn = document.querySelector(".copy-btn");
+const profileUserId = document.getElementById("profileUserId")?.querySelector("span");
 const profileAvatar = document.getElementById("profileAvatar");
-const profileDoneCount = document.getElementById("profileDoneCount");
 const nicknameInput = document.getElementById("nicknameInput");
 const avatarUrlInput = document.getElementById("avatarUrlInput");
 const avatarInput = document.getElementById("avatarInput");
 const profileDescriptionInput = document.getElementById("profileDescriptionInput");
 const editProfileForm = document.getElementById("editProfileForm");
+const copyUserIdBtn = document.querySelector(".copy-btn");
 
 let uploadedAvatarDataURL = null;
-
-// === Генерация числового ID на основе UID Firebase ===
-function generateNumericId(uid) {
-  // Берём хэш от UID и делаем его положительным
-  let hash = 0;
-  for (let i = 0; i < uid.length; i++) {
-    hash = ((hash << 5) - hash + uid.charCodeAt(i)) | 0;
-  }
-  return Math.abs(hash).toString().slice(0, 7); // 7-значный числовой ID
-}
-
-// === Обработчик клика по пункту меню "Профиль" ===
-document.querySelector('[href="#profile"]').addEventListener("click", (e) => {
-  e.preventDefault();
-  closeSidebar();
-
-  // Скрываем все разделы
-  document.querySelectorAll(".cards, .add-game, .search-filter, .backup-section").forEach(el => {
-    el.classList.add("hidden");
-  });
-
-  // Показываем профиль
-  profileSection.classList.remove("hidden");
-
-  // Обновляем данные профиля
-  updateProfileUI();
-});
 
 // === Обновление UI профиля из Firebase ===
 function updateProfileUI() {
   if (!currentUser) return;
-
   const userRef = database.ref(`users/${currentUser.uid}`);
   const profileRef = database.ref(`profiles/${currentUser.uid}`);
-
   Promise.all([
     userRef.once("value"),
     profileRef.once("value")
   ]).then(([userSnapshot, profileSnapshot]) => {
     const userData = userSnapshot.val() || {};
     const profileData = profileSnapshot.val() || {};
-
     const gamesList = userData.games || [];
-
-    const nickname = profileData.nickname || currentUser.displayName || currentUser.email || "Без ника";
-    const avatarUrl = profileData.avatarUrl || currentUser.photoURL || "https://i.pravatar.cc/150?img=1 ";
-
+    const nickname = profileData.nickname || currentUser.displayName || "Без ника";
+    const avatarUrl = profileData.avatarUrl || currentUser.photoURL || "https://i.pravatar.cc/150?img=1  ";
     profileNickname.textContent = nickname;
     profileAvatar.src = avatarUrl;
     nicknameInput.value = nickname;
     avatarUrlInput.value = profileData.avatarUrl || "";
     profileDescriptionInput.value = profileData.description || "";
-
-    // Генерируем числовой ID
-    const numericId = generateNumericId(currentUser.uid);
-    if (profileUserIdSpan) profileUserIdSpan.textContent = numericId;
-
-    profileDoneCount.textContent = gamesList.filter(g => g.status === "done").length;
+    if (profileUserId) profileUserId.textContent = generateNumericId(currentUser.uid);
   });
 }
 
@@ -596,8 +540,6 @@ function updateProfileUI() {
 profileAvatar.addEventListener("click", () => {
   avatarInput.click();
 });
-
-// === Предпросмотр выбранного аватара ===
 avatarInput.addEventListener("change", (e) => {
   const file = e.target.files[0];
   if (file && file.type.startsWith("image/")) {
@@ -613,26 +555,21 @@ avatarInput.addEventListener("change", (e) => {
 // === Сохранение изменений профиля ===
 editProfileForm.addEventListener("submit", (e) => {
   e.preventDefault();
-
   const newNick = nicknameInput.value.trim();
   let newAvatar = uploadedAvatarDataURL || avatarUrlInput.value.trim();
   const newDescription = profileDescriptionInput.value.trim();
-
   if (!newNick) {
     alert("Введите никнейм!");
     return;
   }
-
   if (!newAvatar) {
-    newAvatar = "https://i.pravatar.cc/150?img=1 "; // дефолтный аватар
+    newAvatar = "https://i.pravatar.cc/150?img=1  ";
   }
-
   if (currentUser && newNick) {
     firebase.auth().currentUser.updateProfile({
       displayName: newNick,
       photoURL: newAvatar
     }).then(() => {
-      // Сохраняем в профиль
       database.ref(`profiles/${currentUser.uid}`).set({
         nickname: newNick,
         avatarUrl: newAvatar,
@@ -640,7 +577,6 @@ editProfileForm.addEventListener("submit", (e) => {
         userId: generateNumericId(currentUser.uid),
         joinedAt: new Date().toISOString()
       });
-
       alert("✅ Профиль успешно обновлён!");
       uploadedAvatarDataURL = null;
       updateProfileUI();
@@ -653,10 +589,10 @@ editProfileForm.addEventListener("submit", (e) => {
 // === Копирование ID в буфер обмена ===
 if (copyUserIdBtn) {
   copyUserIdBtn.addEventListener("click", () => {
-    const userId = profileUserIdSpan.textContent;
+    const userId = profileUserId.textContent;
     navigator.clipboard.writeText(userId).then(() => {
-      copyUserIdBtn.title = "Скопировано!";
       copyUserIdBtn.textContent = "✅";
+      copyUserIdBtn.title = "Скопировано!";
       setTimeout(() => {
         copyUserIdBtn.textContent = "📋";
         copyUserIdBtn.title = "Нажмите, чтобы скопировать";
@@ -667,254 +603,52 @@ if (copyUserIdBtn) {
   });
 }
 
-// === Автоматическое создание профиля при входе ===
-function createProfileIfNotExists(user) {
-  const profileRef = database.ref(`profiles/${user.uid}`);
-  profileRef.once("value").then(snapshot => {
-    if (!snapshot.exists()) {
-      profileRef.set({
-        nickname: user.displayName || "Пользователь",
-        avatarUrl: user.photoURL || "https://i.pravatar.cc/150?img=1 ",
-        description: "",
-        userId: generateNumericId(user.uid),
-        joinedAt: new Date().toISOString()
-      }).catch(console.error);
-    }
+// === Добавление элементов друзей ===
+const friendsSection = document.getElementById("friendsSection") || (() => {
+  const sec = document.createElement("section");
+  sec.id = "friendsSection";
+  sec.className = "profile-section hidden";
+  sec.innerHTML = `
+    <h2>Мои друзья</h2>
+    <div id="friendsList" class="friends-list"></div>
+    <button id="addFriendBtn" class="accent-btn full-width">➕ Добавить друга</button>
+    <button id="searchByIdBtn" class="accent-btn full-width" style="margin-top: 1rem;">🔍 Найти по ID</button>
+  `;
+  document.body.appendChild(sec);
+  return sec;
+})();
+const friendsList = document.getElementById("friendsList") || document.createElement("div");
+const addFriendBtn = document.getElementById("addFriendBtn");
+const searchByIdBtn = document.getElementById("searchByIdBtn");
+
+// === Поиск пользователя по числовому ID ===
+function findUserByNumericId(searchedId) {
+  return new Promise((resolve, reject) => {
+    database.ref("profiles").once("value", snapshot => {
+      const profiles = snapshot.val() || {};
+      for (const uid in profiles) {
+        if (profiles[uid].userId === searchedId) {
+          resolve({ found: true, uid });
+          return;
+        }
+      }
+      resolve({ found: false });
+    }).catch(reject);
   });
 }
-
-// Вызов функции при входе пользователя
-auth.onAuthStateChanged((user) => {
-  isLoadingAuth = false;
-  if (user) {
-    currentUser = user;
-    createProfileIfNotExists(user); // <-- Создаем профиль, если его нет
-    authBtn.textContent = "Выйти";
-    userStatus.textContent = `Вы вошли как ${user.displayName}`;
-    database.ref(`users/${currentUser.uid}`).once("value").then(snapshot => {
-      const data = snapshot.val();
-      games = data?.games || [];
-      applyFilters();
-      toggleAuthUI(false);
-    }).catch(console.error);
-  } else {
-    currentUser = null;
-    authBtn.textContent = "Войти через Google";
-    userStatus.textContent = "Вы не вошли";
-    games = [];
-    applyFilters();
-    toggleAuthUI(true);
-  }
-});
-
-// === Добавление элементов друзей ===
-const friendsSection = document.createElement("section");
-friendsSection.id = "friendsSection";
-friendsSection.className = "profile-section hidden";
-friendsSection.innerHTML = `
-  <h2>Мои друзья</h2>
-  <div id="friendsList" class="friends-list"></div>
-  <button id="addFriendBtn" class="accent-btn">➕ Добавить друга</button>
-`;
-document.body.appendChild(friendsSection);
-
-const friendsList = document.getElementById("friendsList");
-const addFriendBtn = document.getElementById("addFriendBtn");
-
-// === Обработка ссылок #friends и #friends/profile/uid ===
-window.addEventListener("hashchange", () => {
-  const hash = window.location.hash.substring(1);
-  if (hash === "friends") {
-    showFriendsList();
-  } else if (hash.startsWith("friends/profile/")) {
-    const friendUid = hash.replace("friends/profile/", "");
-    showFriendProfile(friendUid);
-  }
-});
 
 // === Открытие списка друзей ===
-function showFriendsList() {
-  closeSidebar();
-
-  document.querySelectorAll(".cards, .add-game, .search-filter, .backup-section, #profileSection").forEach(el => {
-    el.classList.add("hidden");
-  });
-
-  friendsSection.classList.remove("hidden");
-  loadFriends();
-}
-
-// === Загрузка списка друзей ===
-function loadFriends() {
-  if (!currentUser) return;
-
-  const friendsRef = database.ref(`friends/${currentUser.uid}`);
-  friendsList.innerHTML = "<p>Загрузка друзей...</p>";
-
-  friendsRef.once("value").then(snapshot => {
-    const friends = snapshot.val() || {};
-    const uids = Object.keys(friends);
-
-    if (uids.length === 0) {
-      friendsList.innerHTML = "<p>У вас пока нет друзей.</p>";
-      return;
-    }
-
-    friendsList.innerHTML = "";
-
-    uids.forEach(uid => {
-      database.ref(`profiles/${uid}`).once("value").then(profileSnap => {
-        const data = profileSnap.val();
-        if (!data) return;
-
-        const card = document.createElement("div");
-        card.className = "friend-card";
-        card.innerHTML = `
-          <img src="${data.avatarUrl}" alt="${data.nickname}">
-          <h4>${data.nickname}</h4>
-          <small>ID: ${data.userId}</small>
-          <button onclick="viewFriendProfile('${uid}')">👁 Просмотреть профиль</button>
-        `;
-        friendsList.appendChild(card);
-      });
-    });
-  }).catch(console.error);
-}
-
-window.viewFriendProfile = function(uid) {
-  window.location.hash = `#friends/profile/${uid}`;
-};
-
-// === Просмотр чужого профиля ===
-function showFriendProfile(uid) {
-  closeSidebar();
-
-  document.querySelectorAll(".cards, .add-game, .search-filter, .backup-section, #profileSection").forEach(el => {
-    el.classList.add("hidden");
-  });
-
-  let friendProfileContainer = document.getElementById("friendProfile");
-  if (!friendProfileContainer) {
-    friendProfileContainer = document.createElement("section");
-    friendProfileContainer.id = "friendProfile";
-    friendProfileContainer.className = "profile-section hidden";
-    document.body.appendChild(friendProfileContainer);
-  }
-
-  friendProfileContainer.classList.remove("hidden");
-
-  Promise.all([
-    database.ref(`profiles/${uid}`).once("value"),
-    database.ref(`users/${uid}/games`).once("value")
-  ]).then(([profileSnap, gamesSnap]) => {
-    const profile = profileSnap.val();
-    const games = gamesSnap.val() || [];
-
-    const doneCount = games.filter(g => g.status === "done").length;
-
-    const html = `
-      <div class="profile-card">
-        <img src="${profile?.avatarUrl || 'https://i.pravatar.cc/150?img=1 '}" class="profile-avatar" alt="Аватар">
-        <h2>${profile?.nickname || "Гость"}</h2>
-        <p class="profile-user-id">ID: <span>${profile?.userId || '—'}</span></p>
-        <div class="profile-stats">
-          <p>Пройдено игр: <strong>${doneCount}</strong></p>
-        </div>
-        <button onclick="goBackToFriends()" class="accent-btn">⬅ Назад к списку друзей</button>
-      </div>
-    `;
-    friendProfileContainer.innerHTML = html;
-  });
-}
-
-function goBackToFriends() {
-  window.location.hash = "#friends";
-}
-
-// === Поиск пользователя по числовому ID ===
-function findUserByNumericId(searchedId) {
-  return new Promise((resolve, reject) => {
-    database.ref("profiles").once("value", snapshot => {
-      const profiles = snapshot.val() || {};
-      for (const uid in profiles) {
-        if (profiles[uid].userId === searchedId) {
-          resolve({ found: true, uid });
-          return;
-        }
-      }
-      resolve({ found: false });
-    }).catch(reject);
-  });
-}
-
-// === Обработчик поиска друга по ID ===
-document.getElementById("friendsSection").addEventListener("click", () => {
-  const existingBtn = document.querySelector("#searchFriendByIdBtn");
-  if (!existingBtn) {
-    const btn = document.createElement("button");
-    btn.id = "searchFriendByIdBtn";
-    btn.className = "accent-btn";
-    btn.textContent = "🔍 Найти друга по ID";
-    btn.style.marginTop = "1rem";
-    btn.addEventListener("click", async () => {
-      const friendId = prompt("Введите числовой ID друга:");
-      if (!friendId) return;
-
-      const result = await findUserByNumericId(friendId);
-      if (!result.found) {
-        alert("❌ Пользователь с таким ID не найден.");
-        return;
-      }
-
-      // Если нашли — открываем профиль
-      window.location.hash = `#friends/profile/${result.uid}`;
-    });
-
-    friendsSection.appendChild(btn);
-  }
-});
-
-// === DOM Elements для друзей ===
-const friendsSection = document.getElementById("friendsSection");
-const friendProfileSection = document.getElementById("friendProfileSection");
-const friendsList = document.getElementById("friendsList");
-const addFriendBtn = document.getElementById("addFriendBtn");
-const findFriendByIdBtn = document.getElementById("findFriendByIdBtn");
-const friendSearchInput = document.getElementById("friendSearchInput");
-
-// === Поиск пользователя по числовому ID ===
-function findUserByNumericId(searchedId) {
-  return new Promise((resolve, reject) => {
-    database.ref("profiles").once("value", snapshot => {
-      const profiles = snapshot.val() || {};
-      for (const uid in profiles) {
-        if (profiles[uid].userId === searchedId) {
-          resolve({ found: true, uid });
-          return;
-        }
-      }
-      resolve({ found: false });
-    }).catch(reject);
-  });
-}
-
-// === Обработчик клика на меню "Друзья" ===
-document.querySelector('[href="#friends"]').addEventListener("click", (e) => {
+document.querySelector('[href="#friends"]')?.addEventListener("click", (e) => {
   e.preventDefault();
   closeSidebar();
-  // Скрываем все разделы
-  document.querySelectorAll(".cards, .add-game, .search-filter, .backup-section, #profileSection").forEach(el => {
-    el.classList.add("hidden");
-  });
-  // Показываем раздел друзей
+  document.querySelectorAll(".cards, .add-game, .search-filter, .backup-section, #profileSection").forEach(el => el?.classList.add("hidden"));
   friendsSection.classList.remove("hidden");
-  loadFriends(); // Загружаем список друзей
+  loadFriends();
 });
 
 // === Загрузка списка друзей ===
 function loadFriends() {
   if (!currentUser) return;
-
   const friendsRef = database.ref(`friends/${currentUser.uid}`);
   friendsList.innerHTML = "<p>Загрузка друзей...</p>";
 
@@ -965,7 +699,7 @@ window.addEventListener("hashchange", () => {
 
 function showFriendsList() {
   document.querySelectorAll(".cards, .add-game, .search-filter, .backup-section, #profileSection").forEach(el => {
-    el.classList.add("hidden");
+    el?.classList.add("hidden");
   });
   friendsSection.classList.remove("hidden");
   loadFriends();
@@ -973,12 +707,19 @@ function showFriendsList() {
 
 function showFriendProfile(uid) {
   closeSidebar();
-
   document.querySelectorAll(".cards, .add-game, .search-filter, .backup-section, #profileSection").forEach(el => {
-    el.classList.add("hidden");
+    el?.classList.add("hidden");
   });
 
-  friendProfileSection.classList.remove("hidden");
+  let friendProfileContainer = document.getElementById("friendProfile");
+  if (!friendProfileContainer) {
+    friendProfileContainer = document.createElement("section");
+    friendProfileContainer.id = "friendProfile";
+    friendProfileContainer.className = "profile-section hidden";
+    document.body.appendChild(friendProfileContainer);
+  }
+
+  friendProfileContainer.classList.remove("hidden");
 
   Promise.all([
     database.ref(`profiles/${uid}`).once("value"),
@@ -986,16 +727,45 @@ function showFriendProfile(uid) {
   ]).then(([profileSnap, gamesSnap]) => {
     const profile = profileSnap.val();
     const games = gamesSnap.val() || [];
-
     const doneCount = games.filter(g => g.status === "done").length;
-
-    document.getElementById("friendAvatar").src = profile?.avatarUrl || "https://i.pravatar.cc/150?img=1 ";
-    document.getElementById("friendNickname").textContent = profile?.nickname || "Гость";
-    document.getElementById("friendUserId").querySelector("span").textContent = profile?.userId || "—";
-    document.getElementById("friendDoneCount").textContent = doneCount;
+    friendProfileContainer.innerHTML = `
+      <div class="profile-card">
+        <img src="${profile?.avatarUrl || 'https://i.pravatar.cc/150?img=1  '}" class="profile-avatar" alt="Аватар">
+        <h2>${profile?.nickname || "Гость"}</h2>
+        <p class="profile-user-id">ID: <span>${profile?.userId || '—'}</span></p>
+        <div class="profile-stats">
+          <p>Пройдено игр: <strong>${doneCount}</strong></p>
+        </div>
+        <button onclick="goBackToFriends()" class="accent-btn full-width">⬅ Назад к списку друзей</button>
+      </div>
+    `;
   });
 }
 
-function goBackToFriends() {
+window.goBackToFriends = function() {
   window.location.hash = "#friends";
 }
+
+// === Обработчики событий для друзей ===
+searchByIdBtn.addEventListener("click", async () => {
+  const friendId = prompt("Введите числовой ID друга:");
+  if (!friendId) return;
+  const result = await findUserByNumericId(friendId);
+  if (!result.found) {
+    alert("❌ Пользователь с таким ID не найден.");
+    return;
+  }
+  viewFriendProfile(result.uid);
+});
+
+addFriendBtn.addEventListener("click", () => {
+  const friendUid = prompt("Введите UID друга:");
+  if (!friendUid || friendUid === currentUser.uid) {
+    alert("❌ Неверный UID или вы пытаетесь добавить сами себя.");
+    return;
+  }
+  database.ref(`friends/${currentUser.uid}/${friendUid}`).set(true).then(() => {
+    alert("✅ Друг добавлен!");
+    loadFriends();
+  }).catch(console.error);
+});
