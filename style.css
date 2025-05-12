@@ -1,0 +1,674 @@
+/* === Переменные тем === */
+:root {
+  --bg-color: #111;
+  --text-color: #eee;
+  --card-bg: #1c1c1c;
+  --accent-color: #4a90e2;
+  --success-color: #2e8b57;
+  --secondary-text: #aaa;
+  --border-color: #333;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+body.dark-theme {
+  --bg-color: #111;
+  --text-color: #eee;
+  --card-bg: #1c1c1c;
+  --accent-color: #4a90e2;
+  --success-color: #2e8b57;
+  --secondary-text: #aaa;
+  --border-color: #333;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+body.light-theme {
+  --bg-color: #f5f5f5;
+  --text-color: #111;
+  --card-bg: #fff;
+  --accent-color: #3498db;
+  --success-color: #2ecc71;
+  --secondary-text: #666;
+  --border-color: #ccc;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* === Общие стили === */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+  padding: 2rem;
+  position: relative;
+}
+
+input::placeholder,
+textarea::placeholder {
+  user-select: text !important;
+}
+
+/* === Оверлей авторизации === */
+#authOnlyOverlay {
+  display: none; /* Было flex — теперь none */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.95);
+  z-index: 9999;
+  color: white;
+  text-align: center;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.4s ease, visibility 0.4s;
+}
+
+#authOnlyOverlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+#authOnlyOverlay h2 {
+  margin-bottom: 1rem;
+}
+
+#authOnlyOverlay button {
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  background-color: #db4437;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#authOnlyOverlay button:hover {
+  background-color: #b8372b;
+}
+
+/* === Заголовок === */
+header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(90deg, #4a90e2, #7ed321);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+header p {
+  font-size: 1rem;
+  color: var(--secondary-text);
+}
+
+#themeToggle {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: 1px solid var(--accent-color);
+  color: var(--accent-color);
+  padding: 0.4rem 0.8rem;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+/* === Авторизация === */
+#auth-container {
+  text-align: right;
+  margin-top: -2rem;
+  margin-bottom: 2rem;
+}
+
+#authBtn {
+  padding: 0.5rem 1rem;
+  background-color: #db4437;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* === Резервное копирование === */
+.backup-section {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+#exportBtn,
+#importInput + label {
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+  margin: 0 0.5rem;
+  display: inline-block;
+}
+
+#exportBtn:hover,
+#importInput + label:hover {
+  background-color: #357ABD;
+}
+
+#importInput {
+  display: none;
+}
+
+/* === Форма добавления === */
+.add-game {
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  text-align: center;
+}
+
+.add-game input,
+.add-game textarea,
+.add-game button {
+  display: block;
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border-radius: 5px;
+  border: none;
+  font-size: 1rem;
+}
+
+.add-game button {
+  background-color: var(--accent-color);
+  color: white;
+  cursor: pointer;
+}
+
+/* === Поиск и фильтр === */
+.search-filter {
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  text-align: center;
+}
+
+.search-filter input,
+.search-filter select {
+  padding: 0.5rem;
+  font-size: 1rem;
+  width: 80%;
+  margin-bottom: 0.5rem;
+  border-radius: 5px;
+  border: none;
+}
+
+/* === Статистика === */
+.stats {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+  color: var(--accent-color);
+}
+
+/* === Карточки игр === */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background-color: var(--card-bg);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px var(--shadow-color);
+  transition: transform 0.3s ease;
+  animation: fadeInUp 0.5s forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.card:nth-child(1) { animation-delay: 0.1s; }
+.card:nth-child(2) { animation-delay: 0.2s; }
+.card:nth-child(3) { animation-delay: 0.3s; }
+
+.card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 8px 30px var(--shadow-color);
+}
+
+.card img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.card img:hover {
+  transform: scale(1.1);
+}
+
+.card h2 {
+  padding: 1rem;
+  font-size: 1.2rem;
+}
+
+.status {
+  display: inline-block;
+  padding: 0.3rem 0.7rem;
+  margin: 0 1rem 0.5rem;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.status.done {
+  background-color: var(--success-color);
+  color: white;
+}
+
+.status.want {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+.stars {
+  margin: 0 1rem 0.5rem;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.stars span {
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #555;
+  transition: color 0.2s;
+}
+
+.stars span.active {
+  color: gold;
+}
+
+.description {
+  width: 100%;
+  padding: 0 1rem 1rem;
+  background-color: #222;
+  border: none;
+  resize: vertical;
+  min-height: 60px;
+  color: #bbb;
+  font-size: 0.9rem;
+}
+
+.delete-btn {
+  margin: 0 1rem 0.5rem;
+  background: none;
+  border: none;
+  color: #e74c3c;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* === Подвал === */
+footer {
+  text-align: center;
+  margin-top: 3rem;
+  font-size: 0.9rem;
+  color: var(--secondary-text);
+}
+
+footer a {
+  color: var(--accent-color);
+  text-decoration: none;
+  transition: opacity 0.3s ease;
+}
+
+footer a:hover {
+  opacity: 0.7;
+}
+
+/* === Анимация появления === */
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === Поиск === */
+.game-search {
+  max-width: 600px;
+  margin: 0 auto 1rem;
+  position: relative;
+}
+
+.search-hint {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--secondary-text);
+  margin-top: 0.3rem;
+  text-align: left;
+}
+
+.search-results {
+  list-style: none;
+  padding: 0;
+  margin-top: 0.5rem;
+  background-color: var(--card-bg);
+  border-radius: 5px;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+}
+
+.search-results li {
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s ease;
+}
+
+.search-results li:hover {
+  background-color: #2a2a2a;
+}
+
+.search-results li:last-child {
+  border-bottom: none;
+}
+
+/* === Частицы фона === */
+#particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* === Подвал === */
+footer {
+  text-align: center;
+  margin-top: 3rem;
+  font-size: 0.9rem;
+  color: var(--secondary-text);
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+footer a {
+  color: var(--accent-color);
+  text-decoration: none;
+  transition: opacity 0.3s ease;
+}
+
+footer a:hover {
+  opacity: 0.7;
+}
+
+footer p {
+  margin: 0.3rem 0;
+}
+
+footer strong.version-tag {
+  color: var(--accent-color);
+  font-weight: 600;
+  background: var(--bg-color);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+}
+
+#authOnlyOverlay {
+  display: none; /* По умолчанию скрыт */
+}
+
+/* === Сайдбар меню === */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -280px;
+  width: 260px;
+  height: 100%;
+  background: linear-gradient(135deg, var(--card-bg), #1a1a1a);
+  box-shadow: 4px 0 20px rgba(0,0,0,0.2);
+  padding-top: 60px;
+  z-index: 1001;
+  transition: left 0.4s ease;
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+.sidebar-header {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  background: rgba(255,255,255,0.03);
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--accent-color);
+}
+
+#menuClose {
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-color);
+  transition: color 0.3s ease;
+}
+
+#menuClose:hover {
+  color: var(--accent-color);
+}
+
+.sidebar-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-links li a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 1rem;
+  text-decoration: none;
+  color: var(--text-color);
+  transition: background 0.3s ease;
+}
+
+.sidebar-links li a:hover {
+  background: var(--bg-color);
+  color: var(--accent-color);
+}
+
+.sidebar svg {
+  min-width: 18px;
+  min-height: 18px;
+  stroke: currentColor;
+}
+
+/* === Кнопка открытия меню === */
+#menuToggle {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1002; /* Должна быть выше остального контента */
+  background: none;
+  border: none;
+  color: var(--accent-color);
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+#menuToggle:hover {
+  transform: scale(1.1);
+  color: #fff;
+}
+
+/* === Отступы для меню сверху === */
+
+.sidebar-header {
+  padding-top: 1.5rem; /* Делаем отступ сверху */
+  padding-bottom: 0.5rem;
+}
+
+.sidebar-links {
+  padding-top: 0.5rem; /* Дополнительный отступ перед списком */
+}
+
+.sidebar-links li:first-child a {
+  margin-top: 0.75rem; /* Отступ первой ссылки */
+}
+
+/* === Профиль === */
+.profile-section {
+  max-width: 600px;
+  margin: 2rem auto;
+  text-align: center;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.profile-card {
+  background-color: var(--card-bg);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 10px 30px var(--shadow-color);
+  transition: transform 0.3s ease;
+}
+
+.profile-card:hover {
+  transform: translateY(-5px);
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid var(--accent-color);
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.profile-avatar:hover {
+  transform: scale(1.1);
+}
+
+.profile-user-id {
+  font-size: 1rem;
+  color: var(--accent-color);
+  margin-top: 0.5rem;
+  font-weight: bold;
+}
+
+.profile-user-id span {
+  user-select: text;
+}
+
+.copy-btn {
+  margin-left: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  vertical-align: middle;
+  color: var(--accent-color);
+  transition: color 0.3s ease;
+}
+
+.copy-btn:hover {
+  color: #fff;
+  transform: scale(1.1);
+}
+
+.edit-profile-form {
+  margin-top: 1rem;
+  text-align: left;
+}
+
+.input-label {
+  display: block;
+  margin-bottom: 1.2rem;
+  font-weight: 500;
+}
+
+.profile-input {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.profile-input:focus {
+  border-color: var(--accent-color);
+  outline: none;
+}
+
+#saveProfileBtn {
+  width: 100%;
+  padding: 0.7rem;
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+#saveProfileBtn:hover {
+  background-color: #357ABD;
+}
+
+/* === Статистика в профиле === */
+.profile-stats {
+  margin-top: 1.5rem;
+  font-size: 1.1rem;
+}
