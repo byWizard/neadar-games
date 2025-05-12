@@ -830,3 +830,46 @@ function showFriendProfile(uid) {
 function goBackToFriends() {
   window.location.hash = "#friends";
 }
+
+// === Поиск пользователя по числовому ID ===
+function findUserByNumericId(searchedId) {
+  return new Promise((resolve, reject) => {
+    database.ref("profiles").once("value", snapshot => {
+      const profiles = snapshot.val() || {};
+      for (const uid in profiles) {
+        if (profiles[uid].userId === searchedId) {
+          resolve({ found: true, uid });
+          return;
+        }
+      }
+      resolve({ found: false });
+    }).catch(reject);
+  });
+}
+
+// === Обработчик поиска друга по ID ===
+document.getElementById("friendsSection").addEventListener("click", () => {
+  const existingBtn = document.querySelector("#searchFriendByIdBtn");
+  if (!existingBtn) {
+    const btn = document.createElement("button");
+    btn.id = "searchFriendByIdBtn";
+    btn.className = "accent-btn";
+    btn.textContent = "🔍 Найти друга по ID";
+    btn.style.marginTop = "1rem";
+    btn.addEventListener("click", async () => {
+      const friendId = prompt("Введите числовой ID друга:");
+      if (!friendId) return;
+
+      const result = await findUserByNumericId(friendId);
+      if (!result.found) {
+        alert("❌ Пользователь с таким ID не найден.");
+        return;
+      }
+
+      // Если нашли — открываем профиль
+      window.location.hash = `#friends/profile/${result.uid}`;
+    });
+
+    friendsSection.appendChild(btn);
+  }
+});
