@@ -672,3 +672,63 @@ footer strong.version-tag {
   margin-top: 1.5rem;
   font-size: 1.1rem;
 }
+
+/* === Список друзей === */
+.friends-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+.friend-card {
+  background-color: var(--card-bg);
+  border-radius: 10px;
+  padding: 1rem;
+  width: 180px;
+  text-align: center;
+  box-shadow: 0 2px 10px var(--shadow-color);
+  transition: transform 0.3s ease;
+}
+.friend-card:hover {
+  transform: translateY(-5px);
+}
+.friend-card img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 0.5rem;
+  border: 2px solid var(--accent-color);
+}
+.friend-card h4 {
+  font-size: 1rem;
+  margin-bottom: 0.3rem;
+}
+.friend-card small {
+  color: var(--secondary-text);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+.friend-card button {
+  background-color: transparent;
+  border: none;
+  color: var(--accent-color);
+  cursor: pointer;
+  font-size: 1rem;
+}
+.friend-card button:hover {
+  text-decoration: underline;
+}
+.accent-btn {
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.accent-btn:hover {
+  background-color: #357ABD;
+}
