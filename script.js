@@ -873,3 +873,129 @@ document.getElementById("friendsSection").addEventListener("click", () => {
     friendsSection.appendChild(btn);
   }
 });
+
+// === DOM Elements для друзей ===
+const friendsSection = document.getElementById("friendsSection");
+const friendProfileSection = document.getElementById("friendProfileSection");
+const friendsList = document.getElementById("friendsList");
+const addFriendBtn = document.getElementById("addFriendBtn");
+const findFriendByIdBtn = document.getElementById("findFriendByIdBtn");
+const friendSearchInput = document.getElementById("friendSearchInput");
+
+// === Поиск пользователя по числовому ID ===
+function findUserByNumericId(searchedId) {
+  return new Promise((resolve, reject) => {
+    database.ref("profiles").once("value", snapshot => {
+      const profiles = snapshot.val() || {};
+      for (const uid in profiles) {
+        if (profiles[uid].userId === searchedId) {
+          resolve({ found: true, uid });
+          return;
+        }
+      }
+      resolve({ found: false });
+    }).catch(reject);
+  });
+}
+
+// === Обработчик клика на меню "Друзья" ===
+document.querySelector('[href="#friends"]').addEventListener("click", (e) => {
+  e.preventDefault();
+  closeSidebar();
+  // Скрываем все разделы
+  document.querySelectorAll(".cards, .add-game, .search-filter, .backup-section, #profileSection").forEach(el => {
+    el.classList.add("hidden");
+  });
+  // Показываем раздел друзей
+  friendsSection.classList.remove("hidden");
+  loadFriends(); // Загружаем список друзей
+});
+
+// === Загрузка списка друзей ===
+function loadFriends() {
+  if (!currentUser) return;
+
+  const friendsRef = database.ref(`friends/${currentUser.uid}`);
+  friendsList.innerHTML = "<p>Загрузка друзей...</p>";
+
+  friendsRef.once("value").then(snapshot => {
+    const friends = snapshot.val() || {};
+    const uids = Object.keys(friends);
+
+    if (uids.length === 0) {
+      friendsList.innerHTML = "<p>У вас пока нет друзей.</p>";
+      return;
+    }
+
+    friendsList.innerHTML = "";
+
+    uids.forEach(uid => {
+      database.ref(`profiles/${uid}`).once("value").then(profileSnap => {
+        const data = profileSnap.val();
+        if (!data) return;
+
+        const card = document.createElement("div");
+        card.className = "friend-card";
+        card.innerHTML = `
+          <img src="${data.avatarUrl}" alt="${data.nickname}">
+          <h4>${data.nickname}</h4>
+          <small>ID: ${data.userId}</small>
+          <button onclick="viewFriendProfile('${uid}')">👁 Просмотреть профиль</button>
+        `;
+        friendsList.appendChild(card);
+      });
+    });
+  }).catch(console.error);
+}
+
+// === Просмотр профиля друга ===
+window.viewFriendProfile = function(uid) {
+  window.location.hash = `#friends/profile/${uid}`;
+};
+
+window.addEventListener("hashchange", () => {
+  const hash = window.location.hash.substring(1);
+  if (hash === "friends") {
+    showFriendsList();
+  } else if (hash.startsWith("friends/profile/")) {
+    const friendUid = hash.replace("friends/profile/", "");
+    showFriendProfile(friendUid);
+  }
+});
+
+function showFriendsList() {
+  document.querySelectorAll(".cards, .add-game, .search-filter, .backup-section, #profileSection").forEach(el => {
+    el.classList.add("hidden");
+  });
+  friendsSection.classList.remove("hidden");
+  loadFriends();
+}
+
+function showFriendProfile(uid) {
+  closeSidebar();
+
+  document.querySelectorAll(".cards, .add-game, .search-filter, .backup-section, #profileSection").forEach(el => {
+    el.classList.add("hidden");
+  });
+
+  friendProfileSection.classList.remove("hidden");
+
+  Promise.all([
+    database.ref(`profiles/${uid}`).once("value"),
+    database.ref(`users/${uid}/games`).once("value")
+  ]).then(([profileSnap, gamesSnap]) => {
+    const profile = profileSnap.val();
+    const games = gamesSnap.val() || [];
+
+    const doneCount = games.filter(g => g.status === "done").length;
+
+    document.getElementById("friendAvatar").src = profile?.avatarUrl || "https://i.pravatar.cc/150?img=1 ";
+    document.getElementById("friendNickname").textContent = profile?.nickname || "Гость";
+    document.getElementById("friendUserId").querySelector("span").textContent = profile?.userId || "—";
+    document.getElementById("friendDoneCount").textContent = doneCount;
+  });
+}
+
+function goBackToFriends() {
+  window.location.hash = "#friends";
+}
