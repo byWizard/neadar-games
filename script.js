@@ -682,3 +682,151 @@ function createProfileIfNotExists(user) {
     }
   });
 }
+
+// Вызов функции при входе пользователя
+auth.onAuthStateChanged((user) => {
+  isLoadingAuth = false;
+  if (user) {
+    currentUser = user;
+    createProfileIfNotExists(user); // <-- Создаем профиль, если его нет
+    authBtn.textContent = "Выйти";
+    userStatus.textContent = `Вы вошли как ${user.displayName}`;
+    database.ref(`users/${currentUser.uid}`).once("value").then(snapshot => {
+      const data = snapshot.val();
+      games = data?.games || [];
+      applyFilters();
+      toggleAuthUI(false);
+    }).catch(console.error);
+  } else {
+    currentUser = null;
+    authBtn.textContent = "Войти через Google";
+    userStatus.textContent = "Вы не вошли";
+    games = [];
+    applyFilters();
+    toggleAuthUI(true);
+  }
+});
+
+// === Добавление элементов друзей ===
+const friendsSection = document.createElement("section");
+friendsSection.id = "friendsSection";
+friendsSection.className = "profile-section hidden";
+friendsSection.innerHTML = `
+  <h2>Мои друзья</h2>
+  <div id="friendsList" class="friends-list"></div>
+  <button id="addFriendBtn" class="accent-btn">➕ Добавить друга</button>
+`;
+document.body.appendChild(friendsSection);
+
+const friendsList = document.getElementById("friendsList");
+const addFriendBtn = document.getElementById("addFriendBtn");
+
+// === Обработка ссылок #friends и #friends/profile/uid ===
+window.addEventListener("hashchange", () => {
+  const hash = window.location.hash.substring(1);
+  if (hash === "friends") {
+    showFriendsList();
+  } else if (hash.startsWith("friends/profile/")) {
+    const friendUid = hash.replace("friends/profile/", "");
+    showFriendProfile(friendUid);
+  }
+});
+
+// === Открытие списка друзей ===
+function showFriendsList() {
+  closeSidebar();
+
+  document.querySelectorAll(".cards, .add-game, .search-filter, .backup-section, #profileSection").forEach(el => {
+    el.classList.add("hidden");
+  });
+
+  friendsSection.classList.remove("hidden");
+  loadFriends();
+}
+
+// === Загрузка списка друзей ===
+function loadFriends() {
+  if (!currentUser) return;
+
+  const friendsRef = database.ref(`friends/${currentUser.uid}`);
+  friendsList.innerHTML = "<p>Загрузка друзей...</p>";
+
+  friendsRef.once("value").then(snapshot => {
+    const friends = snapshot.val() || {};
+    const uids = Object.keys(friends);
+
+    if (uids.length === 0) {
+      friendsList.innerHTML = "<p>У вас пока нет друзей.</p>";
+      return;
+    }
+
+    friendsList.innerHTML = "";
+
+    uids.forEach(uid => {
+      database.ref(`profiles/${uid}`).once("value").then(profileSnap => {
+        const data = profileSnap.val();
+        if (!data) return;
+
+        const card = document.createElement("div");
+        card.className = "friend-card";
+        card.innerHTML = `
+          <img src="${data.avatarUrl}" alt="${data.nickname}">
+          <h4>${data.nickname}</h4>
+          <small>ID: ${data.userId}</small>
+          <button onclick="viewFriendProfile('${uid}')">👁 Просмотреть профиль</button>
+        `;
+        friendsList.appendChild(card);
+      });
+    });
+  }).catch(console.error);
+}
+
+window.viewFriendProfile = function(uid) {
+  window.location.hash = `#friends/profile/${uid}`;
+};
+
+// === Просмотр чужого профиля ===
+function showFriendProfile(uid) {
+  closeSidebar();
+
+  document.querySelectorAll(".cards, .add-game, .search-filter, .backup-section, #profileSection").forEach(el => {
+    el.classList.add("hidden");
+  });
+
+  let friendProfileContainer = document.getElementById("friendProfile");
+  if (!friendProfileContainer) {
+    friendProfileContainer = document.createElement("section");
+    friendProfileContainer.id = "friendProfile";
+    friendProfileContainer.className = "profile-section hidden";
+    document.body.appendChild(friendProfileContainer);
+  }
+
+  friendProfileContainer.classList.remove("hidden");
+
+  Promise.all([
+    database.ref(`profiles/${uid}`).once("value"),
+    database.ref(`users/${uid}/games`).once("value")
+  ]).then(([profileSnap, gamesSnap]) => {
+    const profile = profileSnap.val();
+    const games = gamesSnap.val() || [];
+
+    const doneCount = games.filter(g => g.status === "done").length;
+
+    const html = `
+      <div class="profile-card">
+        <img src="${profile?.avatarUrl || 'https://i.pravatar.cc/150?img=1 '}" class="profile-avatar" alt="Аватар">
+        <h2>${profile?.nickname || "Гость"}</h2>
+        <p class="profile-user-id">ID: <span>${profile?.userId || '—'}</span></p>
+        <div class="profile-stats">
+          <p>Пройдено игр: <strong>${doneCount}</strong></p>
+        </div>
+        <button onclick="goBackToFriends()" class="accent-btn">⬅ Назад к списку друзей</button>
+      </div>
+    `;
+    friendProfileContainer.innerHTML = html;
+  });
+}
+
+function goBackToFriends() {
+  window.location.hash = "#friends";
+}
