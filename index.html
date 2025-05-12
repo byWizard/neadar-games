@@ -5,11 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Мои пройденные игры</title>
   <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  
+  <!-- Подключение шрифта Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com ">
+  <link href="https://fonts.googleapis.com/css2?family=Inter :wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js "></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js "></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js "></script>
 </head>
 <body class="dark-theme">
   <!-- Canvas для анимированных частиц -->
@@ -22,24 +26,24 @@
     <button id="authRequiredLoginBtn">Войти через Google</button>
   </div>
 
-<!-- Кнопка открытия меню -->
-<button id="menuToggle">☰ Меню</button>
+  <!-- Кнопка открытия меню -->
+  <button id="menuToggle">☰ Меню</button>
 
-<!-- Боковое меню -->
-<nav id="sidebar" class="sidebar">
-  <div class="sidebar-header">
-    <h3>Мои Игры</h3>
-    <span id="menuClose">×</span>
-  </div>
-  <ul class="sidebar-links">
-    <li><a href="#home"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Главная</a></li>
-    <li><a href="#profile"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Профиль</a></li>
-    <li><a href="#friends"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Друзья</a></li>
-    <li><a href="#leaderboard"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg> Лидерборд</a></li>
-    <li><a href="#settings"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1.51-1V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 .51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.51-1V9"></path></svg> Настройки</a></li>
-    <li><a href="#comments"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> Комментарии</a></li>
-  </ul>
-</nav>
+  <!-- Боковое меню -->
+  <nav id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <h3>Мои Игры</h3>
+      <span id="menuClose">×</span>
+    </div>
+    <ul class="sidebar-links">
+      <li><a href="#home"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Главная</a></li>
+      <li><a href="#profile"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Профиль</a></li>
+      <li><a href="#friends"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Друзья</a></li>
+      <li><a href="#leaderboard"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg> Лидерборд</a></li>
+      <li><a href="#settings"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1.51-1V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 .51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.51-1V9"></path></svg> Настройки</a></li>
+      <li><a href="#comments"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> Комментарии</a></li>
+    </ul>
+  </nav>
 
   <header>
     <h1>Мои пройденные игры</h1>
@@ -94,76 +98,77 @@
     <!-- Здесь будут динамически добавленные карточки -->
   </section>
 
-<!-- === Страница профиля === -->
-<section id="profileSection" class="profile-section hidden">
-  <div class="profile-card">
-    <!-- Аватар и данные -->
-    <img id="profileAvatar" src="" alt="Аватар" class="profile-avatar clickable" title="Нажмите, чтобы изменить аватар">
-    <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+  <!-- === Страница профиля === -->
+  <section id="profileSection" class="profile-section hidden">
+    <div class="profile-card">
+      <!-- Аватар и данные -->
+      <img id="profileAvatar" src="" alt="Аватар" class="profile-avatar clickable" title="Нажмите, чтобы изменить аватар">
+      <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+      <h2 id="profileNickname">Загрузка...</h2>
+      <p id="profileUserId" class="profile-user-id">ID: <span>0000000</span> <button class="copy-btn" title="Скопировать ID">📋</button></p>
 
-    <h2 id="profileNickname">Загрузка...</h2>
-    <p id="profileUserId" class="profile-user-id">ID: <span>0000000</span> <button class="copy-btn" title="Скопировать ID">📋</button></p>
+      <form id="editProfileForm" class="edit-profile-form">
+        <!-- Никнейм -->
+        <label class="input-label">
+          Никнейм:
+          <input type="text" id="nicknameInput" class="profile-input" required>
+        </label>
 
-    <form id="editProfileForm" class="edit-profile-form">
-      <!-- Никнейм -->
-      <label class="input-label">
-        Никнейм:
-        <input type="text" id="nicknameInput" class="profile-input" required>
-      </label>
+        <!-- Аватар по ссылке -->
+        <label class="input-label">
+          Аватар (ссылка):
+          <input type="url" id="avatarUrlInput" class="profile-input" placeholder="https://...">
+        </label>
 
-      <!-- Аватар по ссылке -->
-      <label class="input-label">
-        Аватар (ссылка):
-        <input type="url" id="avatarUrlInput" class="profile-input" placeholder="https://...">
-      </label>
+        <!-- Описание -->
+        <label class="input-label">
+          Описание:
+          <textarea id="profileDescriptionInput" class="profile-input" rows="3"></textarea>
+        </label>
 
-      <!-- Описание -->
-      <label class="input-label">
-        Описание:
-        <textarea id="profileDescriptionInput" class="profile-input" rows="3"></textarea>
-      </label>
+        <!-- Кнопка сохранения -->
+        <button type="submit" id="saveProfileBtn">💾 Сохранить</button>
+      </form>
 
-      <!-- Кнопка сохранения -->
-      <button type="submit" id="saveProfileBtn">💾 Сохранить</button>
-    </form>
-
-    <!-- Статистика -->
-    <div class="profile-stats">
-      <p>Пройдено игр: <strong id="profileDoneCount">0</strong></p>
+      <!-- Статистика -->
+      <div class="profile-stats">
+        <p>Пройдено игр: <strong id="profileDoneCount">0</strong></p>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<footer>
-  <p>© 2025 Neadar | Хостится на GitHub Pages</p>
-  <p><a href="https://t.me/neadar" target="_blank">Telegram: @neadar</a></p>
-  <p>Версия: <strong class="version-tag">v1.91 Stable</strong> | Обновлено: 06.05.2025</p>
-</footer>
+  <!-- === Секция друзей === -->
+  <section id="friendsSection" class="profile-section hidden">
+    <h2>Мои друзья</h2>
+    <div class="friends-search-container">
+      <input type="text" id="friendSearchInput" class="friends-search-input" placeholder="Поиск друга по ID">
+      <button id="findFriendByIdBtn" class="accent-btn">🔍 Найти по ID</button>
+    </div>
+    <div id="friendsList" class="friends-list"></div>
+    <button id="addFriendBtn" class="accent-btn full-width">➕ Добавить друга по UID</button>
+  </section>
 
+  <!-- === Просмотр профиля друга === -->
+  <section id="friendProfileSection" class="profile-section hidden">
+    <div class="profile-card">
+      <img id="friendAvatar" src="" alt="Аватар" class="profile-avatar">
+      <h2 id="friendNickname">Загрузка...</h2>
+      <p id="friendUserId" class="profile-user-id">ID: <span>—</span></p>
+      <div class="profile-stats">
+        <p>Пройдено игр: <strong id="friendDoneCount">0</strong></p>
+      </div>
+      <button onclick="goBackToFriends()" class="accent-btn full-width">⬅ Назад к списку друзей</button>
+    </div>
+  </section>
+
+  <!-- Подвал -->
+  <footer>
+    <p>© 2025 Neadar | Хостится на GitHub Pages</p>
+    <p><a href="https://t.me/neadar " target="_blank">Telegram: @neadar</a></p>
+    <p>Версия: <strong class="version-tag">v1.91 Stable</strong> | Обновлено: 06.05.2025</p>
+  </footer>
+
+  <!-- Скрипты -->
   <script src="script.js"></script>
-<!-- === Секция "Друзья" === -->
-<section id="friendsSection" class="profile-section hidden">
-  <h2>Мои друзья</h2>
-  <div class="friends-search-container">
-    <input type="text" id="friendSearchInput" class="friends-search-input" placeholder="Поиск друга по ID">
-    <button id="findFriendByIdBtn" class="accent-btn">🔍 Найти по ID</button>
-  </div>
-  <div id="friendsList" class="friends-list"></div>
-  <button id="addFriendBtn" class="accent-btn full-width">➕ Добавить друга по UID</button>
-</section>
-
-<!-- === Просмотр профиля друга === -->
-<section id="friendProfileSection" class="profile-section hidden">
-  <div class="profile-card">
-    <img id="friendAvatar" src="" alt="Аватар" class="profile-avatar">
-    <h2 id="friendNickname">Загрузка...</h2>
-    <p id="friendUserId" class="profile-user-id">ID: <span>—</span></p>
-    <div class="profile-stats">
-      <p>Пройдено игр: <strong id="friendDoneCount">0</strong></p>
-    </div>
-    <button onclick="goBackToFriends()" class="accent-btn full-width">⬅ Назад к списку друзей</button>
-  </div>
-</section>
 </body>
 </html>
-
