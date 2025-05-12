@@ -134,13 +134,6 @@
   </div>
 </section>
 
-<!-- === Страница друзей === -->
-<section id="friendsSection" class="profile-section hidden">
-  <h2>Мои друзья</h2>
-  <div id="friendsList" class="friends-list"></div>
-  <button id="addFriendBtn" class="accent-btn">➕ Добавить друга</button>
-</section>
-
 <footer>
   <p>© 2025 Neadar | Хостится на GitHub Pages</p>
   <p><a href="https://t.me/neadar" target="_blank">Telegram: @neadar</a></p>
@@ -148,6 +141,29 @@
 </footer>
 
   <script src="script.js"></script>
+<!-- === Секция "Друзья" === -->
+<section id="friendsSection" class="profile-section hidden">
+  <h2>Мои друзья</h2>
+  <div class="friends-search-container">
+    <input type="text" id="friendSearchInput" class="friends-search-input" placeholder="Поиск друга по ID">
+    <button id="findFriendByIdBtn" class="accent-btn">🔍 Найти по ID</button>
+  </div>
+  <div id="friendsList" class="friends-list"></div>
+  <button id="addFriendBtn" class="accent-btn full-width">➕ Добавить друга по UID</button>
+</section>
+
+<!-- === Просмотр профиля друга === -->
+<section id="friendProfileSection" class="profile-section hidden">
+  <div class="profile-card">
+    <img id="friendAvatar" src="" alt="Аватар" class="profile-avatar">
+    <h2 id="friendNickname">Загрузка...</h2>
+    <p id="friendUserId" class="profile-user-id">ID: <span>—</span></p>
+    <div class="profile-stats">
+      <p>Пройдено игр: <strong id="friendDoneCount">0</strong></p>
+    </div>
+    <button onclick="goBackToFriends()" class="accent-btn full-width">⬅ Назад к списку друзей</button>
+  </div>
+</section>
 </body>
 </html>
 
