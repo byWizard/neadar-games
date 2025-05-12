@@ -666,3 +666,19 @@ if (copyUserIdBtn) {
     });
   });
 }
+
+// === Автоматическое создание профиля при входе ===
+function createProfileIfNotExists(user) {
+  const profileRef = database.ref(`profiles/${user.uid}`);
+  profileRef.once("value").then(snapshot => {
+    if (!snapshot.exists()) {
+      profileRef.set({
+        nickname: user.displayName || "Пользователь",
+        avatarUrl: user.photoURL || "https://i.pravatar.cc/150?img=1 ",
+        description: "",
+        userId: generateNumericId(user.uid),
+        joinedAt: new Date().toISOString()
+      }).catch(console.error);
+    }
+  });
+}
