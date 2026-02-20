@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HUB | Hobby Universe Base</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+</head>
+<body class="dark-theme">
+  <!-- Canvas для анимированных частиц -->
+  <canvas id="particles"></canvas>
+
+  <!-- Экран для неавторизованных пользователей -->
+  <div id="authOnlyOverlay" class="auth-overlay">
+    <div class="auth-overlay-content">
+      <div class="logo-animation">
+        <span class="logo-char">H</span>
+        <span class="logo-char">U</span>
+        <span class="logo-char">B</span>
+      </div>
+      <h2>🔒 Войдите, чтобы продолжить</h2>
+      <p>Добавляйте игры, сохраняйте прогресс и делитесь списком с друзьями.</p>
+      <button id="authRequiredLoginBtn" class="glow-button">Войти через Google</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <header>
+      <div class="header-content">
+        <div class="logo">
+          <h1>H U B</h1>
+          <p>Hobby Universe Base</p>
+        </div>
+        <button id="themeToggle" class="theme-toggle">
+          <span class="theme-icon">🌙</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Авторизация -->
+    <div id="auth-container" class="auth-container">
+      <button id="authBtn" class="auth-button">Войти через Google</button>
+      <p id="userStatus" class="user-status">Вы не вошли</p>
+    </div>
+
+    <!-- Резервное копирование -->
+    <div class="backup-section">
+      <button id="exportBtn" class="backup-button">📥 Экспортировать список</button>
+      <input type="file" id="importInput" accept=".json" />
+      <label for="importInput" class="backup-button">📁 Импортировать список</label>
+    </div>
+
+    <!-- Форма добавления -->
+    <section class="add-game card">
+      <h2 class="section-title">Добавить новую игру</h2>
+      <form id="addGameForm">
+        <input type="text" id="gameSearch" placeholder="Поиск по названию игры..." class="form-input" />
+        <small class="search-hint">Пишите название → здесь появятся варианты</small>
+        <ul id="searchResults" class="search-results"></ul>
+        <input type="text" id="gameTitle" placeholder="Название игры" required class="form-input" />
+        <input type="url" id="gameImage" placeholder="Ссылка на картинку" required class="form-input" />
+        <textarea id="gameDescription" placeholder="Описание" class="form-textarea"></textarea>
+        <button type="submit" class="submit-button">Добавить игру</button>
+      </form>
+    </section>
+
+    <!-- Поиск и фильтр -->
+    <div class="search-filter card">
+      <input type="text" id="searchInput" placeholder="Найти игру..." class="form-input" />
+      <select id="filterSelect" class="form-select">
+        <option value="all">Все</option>
+        <option value="done">Пройденные</option>
+        <option value="want">Хочу пройти</option>
+        <option value="postponed">Отложена</option>
+      </select>
+    </div>
+
+    <!-- Статистика -->
+    <div class="stats card">
+      <p><strong>Пройдено:</strong> <span id="doneCount">0</span></p>
+    </div>
+
+    <!-- Карточки -->
+    <section class="cards" id="cardsContainer">
+      <!-- Здесь будут динамически добавленные карточки -->
+    </section>
+
+    <footer>
+      <p>© 2025 Neadar | Хостится на GitHub Pages</p>
+      <p><a href="https://t.me/neadar" target="_blank">Telegram: @neadar</a></p>
+      <p>Version: <strong class="version-tag">v2.3 Mid</strong> | Update: 28.10.2025</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
