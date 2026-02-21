@@ -123,7 +123,15 @@ function renderSearchResults(results) {
 function setTheme(theme) {
   document.body.classList.remove("dark-theme", "light-theme");
   document.body.classList.add(`${theme}-theme`);
-  themeToggle.textContent = theme === "dark" ? "🌙 Переключить тему" : "☀️ Переключить тему";
+
+  const themeIcon = themeToggle.querySelector(".theme-icon");
+  if (themeIcon) {
+    themeIcon.textContent = theme === "dark" ? "🌙" : "☀️";
+  } else {
+    themeToggle.textContent = theme === "dark" ? "🌙" : "☀️";
+  }
+  themeToggle.setAttribute("aria-label", theme === "dark" ? "Переключить на светлую тему" : "Переключить на тёмную тему");
+
   localStorage.setItem("theme", theme);
   updateParticleColor(theme);
 }
